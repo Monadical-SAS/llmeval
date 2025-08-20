@@ -3,21 +3,6 @@
 A tool for evaluating LLM models on coding tasks with automated testing and comparison,
 with detailed markdown summary.
 
-```
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓
-┃ Model                     ┃ Status       ┃ Duration   ┃ Session KB   ┃ Result       ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩
-│ openrouter/meta-llama/ll… │ Failed       │ 13s        │ 3.8          │ ❌ Test      │
-│ openrouter/deepseek/deep… │ Pass         │ 1m 18s     │ 13.6         │ ✔ Pass      │
-│ openrouter/cohere/comman… │ Failed       │ 32s        │ 8.9          │ ❌ Test      │
-│ openrouter/moonshotai/ki… │ Pass         │ 15s        │ 5.1          │ ✔ Pass      │
-│ openrouter/anthropic/cla… │ Pass         │ 2m 41s     │ 33.8         │ ✔ Pass      │
-│ openrouter/qwen/qwen3-23… │ Pass         │ 3m 31s     │ 7.6          │ ✔ Pass      │
-│ openrouter/mistralai/cod… │ Pass         │ 9s         │ 4.6          │ ✔ Pass      │
-│ openrouter/mistralai/dev… │ Pass         │ 6s         │ 2.9          │ ✔ Pass      │
-└───────────────────────────┴──────────────┴────────────┴──────────────┴──────────────┘
-```
-
 ## Requirements
 
 - Python 3.8+
@@ -71,20 +56,40 @@ runs/run_20250713_123456/
 
 ### Summary Report (summary.md)
 ```markdown
-# LLMEval Results - 2025-07-13 12:34:56
+# LLMEval Results - 2025-08-20 10:31:14
 
-## Task: hello_world
-**Run Path**: `runs/run_20250713_123456`
+## Task: task1_file_list
+**Run Path**: `runs/run_20250820_102336`
 
-| Model | Duration | Session Size | Status | Result |
-|-------|----------|--------------|--------|--------|
-| gpt-4 | 3m 45s | 62.1 KB |  | Pass |
-| claude-3-5-sonnet | 4m 32s | 78.5 KB |  | Pass |
+| Model | Duration | Session Size | Status | Result | Tests Passed |
+|-------|----------|--------------|--------|--------|--------------|
+| litellm/openrouter/openai/gpt-4 | 28s | 8.2 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/anthropic/claude-sonnet-4 | 26s | 9.9 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/qwen/qwen3-30b-a3b-instruct-2507 | 5s | 4.3 KB | ❌ | test_1_file_exists.sh | 0/1 |
+| litellm/openrouter/qwen/qwen3-235b-a22b-thinking-2507 | 5m 0s | 0.0 KB | ❌ | Timeout | N/A |
+| litellm/openrouter/qwen/qwen3-coder | 51s | 12.2 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/z-ai/glm-4.5-air | 38s | 12.2 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/z-ai/glm-4.5 | 23s | 7.9 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/z-ai/glm-4-32b | 14s | 6.9 KB | ❌ | test_2_valid_json.sh | 1/2 |
+| litellm/openrouter/meta-llama/llama-4-scout | 7s | 9.0 KB | ❌ | test_2_valid_json.sh | 1/2 |
+| litellm/openrouter/microsoft/phi-4 | 5s | 4.2 KB | ❌ | test_1_file_exists.sh | 0/1 |
+| litellm/openrouter/deepseek/deepseek-r1-0528 | 5m 0s | 0.0 KB | ❌ | Timeout | N/A |
+| litellm/openrouter/deepseek/deepseek-chat-v3-0324 | 55s | 11.3 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/mistralai/mistral-medium-3.1 | 7s | 5.1 KB | ❌ | test_1_file_exists.sh | 0/1 |
+| litellm/openrouter/ai21/jamba-mini-1.7 | 7s | 3.2 KB | ❌ | test_1_file_exists.sh | 0/1 |
+| litellm/openrouter/ai21/jamba-large-1.7 | 8s | 3.4 KB | ❌ | test_2_valid_json.sh | 1/2 |
+| litellm/openrouter/openai/gpt-oss-120b | 11s | 7.3 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/openai/gpt-oss-20b | 37s | 8.4 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/mistralai/codestral-2508 | 37s | 5.0 KB | ❌ | test_1_file_exists.sh | 0/1 |
+| litellm/openrouter/moonshotai/kimi-k2 | 30s | 9.3 KB | ✅ | Pass | 4/4 |
+| litellm/openrouter/minimax/minimax-m1 | 5m 0s | 0.0 KB | ❌ | Timeout | N/A |
+| litellm/openrouter/qwen/qwen3-14b | 1m 29s | 4.9 KB | ✅ | Pass | 4/4 |
 
 ## Statistics
-- Total models tested: 2
-- Successful: 2 (100%)
+- Total models tested: 21
+- Successful: 10 (48%)
 - Failed execution: 0 (0%)
 - Failed tests: 0 (0%)
-- Total session data: 140.6 KB
+- Failed errors: 0 (0%)
+- Total session data: 132.7 KB
 ```
