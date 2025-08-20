@@ -21,6 +21,11 @@ def strip_ansi(text):
     ansi_escape = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
     return ansi_escape.sub('', text)
 
+def escape_markdown_code_blocks(text):
+    """Escape triple backticks in text to prevent breaking markdown code blocks."""
+    # Replace ``` with escaped version to prevent breaking markdown formatting
+    return text.replace('```', '\\`\\`\\`')
+
 CUBBIX_COMMAND_TEMPLATE = [
     "cubbix",
     "-i",
@@ -493,7 +498,10 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
             try:
                 with open(session_file, "r") as f:
                     session_content = f.read()
-                    detailed_summary_lines.append(strip_ansi(session_content))
+                    # Strip ANSI codes and escape markdown code blocks
+                    cleaned_content = strip_ansi(session_content)
+                    escaped_content = escape_markdown_code_blocks(cleaned_content)
+                    detailed_summary_lines.append(escaped_content)
             except Exception:
                 detailed_summary_lines.append("Error reading session file")
             detailed_summary_lines.extend(
@@ -525,7 +533,10 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
                     try:
                         with open(test_output_file, "r") as f:
                             test_content = f.read()
-                            detailed_summary_lines.append(strip_ansi(test_content))
+                            # Strip ANSI codes and escape markdown code blocks
+                            cleaned_content = strip_ansi(test_content)
+                            escaped_content = escape_markdown_code_blocks(cleaned_content)
+                            detailed_summary_lines.append(escaped_content)
                     except Exception:
                         detailed_summary_lines.append(f"Error reading {test_result['output_file']}")
                 else:
@@ -549,7 +560,10 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
             try:
                 with open(error_file, "r") as f:
                     error_content = f.read()
-                    detailed_summary_lines.append(strip_ansi(error_content))
+                    # Strip ANSI codes and escape markdown code blocks
+                    cleaned_content = strip_ansi(error_content)
+                    escaped_content = escape_markdown_code_blocks(cleaned_content)
+                    detailed_summary_lines.append(escaped_content)
             except Exception:
                 detailed_summary_lines.append("Error reading error file")
             detailed_summary_lines.extend(
