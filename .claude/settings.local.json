@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(notify-send:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": []
+  }
+}

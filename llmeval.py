@@ -11,9 +11,15 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import re
 import structlog
 from rich.live import Live
 from rich.table import Table
+
+def strip_ansi(text):
+    """Remove ANSI escape sequences from text."""
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
+    return ansi_escape.sub('', text)
 
 CUBBIX_COMMAND_TEMPLATE = [
     "cubbix",
@@ -456,7 +462,7 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
             try:
                 with open(session_file, "r") as f:
                     session_content = f.read()
-                    detailed_summary_lines.append(session_content)
+                    detailed_summary_lines.append(strip_ansi(session_content))
             except Exception:
                 detailed_summary_lines.append("Error reading session file")
             detailed_summary_lines.extend(
@@ -488,7 +494,7 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
                     try:
                         with open(test_output_file, "r") as f:
                             test_content = f.read()
-                            detailed_summary_lines.append(test_content)
+                            detailed_summary_lines.append(strip_ansi(test_content))
                     except Exception:
                         detailed_summary_lines.append(f"Error reading {test_result['output_file']}")
                 else:
@@ -512,7 +518,7 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
             try:
                 with open(error_file, "r") as f:
                     error_content = f.read()
-                    detailed_summary_lines.append(error_content)
+                    detailed_summary_lines.append(strip_ansi(error_content))
             except Exception:
                 detailed_summary_lines.append("Error reading error file")
             detailed_summary_lines.extend(

@@ -22,8 +22,7 @@ with detailed markdown summary.
 
 - Python 3.8+
 - uv package manager
-- cubbix with goose image
-- LITELLM_API_KEY environment variable
+- [Cubbi](https://github.com/monadical-sas/cubbi) with goose image, with at least one provider configured
 
 ## Usage
 
@@ -31,11 +30,11 @@ with detailed markdown summary.
 # Install dependencies
 uv add rich structlog
 
-# Basic evaluation with Rich console
-uv run python llmeval.py --model gpt-4,claude-3-5-sonnet --task path/to/task
+# Evaluation with openai/anthropic provider
+uv run python llmeval.py --model openai/gpt-4,anthropic/claude-3-5-sonnet --task path/to/task
 
-# Verbose mode with detailed logging
-uv run python llmeval.py --model gpt-4 --task path/to/task --verbose
+# Evaluation with litellm provider (configured in cubbi), and using openrouter
+uv run python llmeval.py --model litellm/openrouter/moonshotai/kimi-k2 --task path/to/task
 ```
 
 ## Task Structure
