@@ -31,11 +31,20 @@ except Exception as e:
     print(f"ERROR: Failed to load files.json: {e}")
     sys.exit(1)
 
-# Get the actual files list
-actual_files = set(data['files'])
+# Normalize paths by removing leading './' from all entries
+def normalize_path(path):
+    """Remove leading './' from path to normalize it."""
+    if path.startswith('./'):
+        return path[2:]
+    return path
+
+# Get the actual files list and normalize paths
+actual_files_raw = data['files']
+actual_files_normalized = [normalize_path(f) for f in actual_files_raw]
+actual_files = set(actual_files_normalized)
 
 print(f"Expected {len(expected_files)} files")
-print(f"Found {len(actual_files)} files in JSON")
+print(f"Found {len(actual_files)} unique normalized files in JSON")
 
 # Check for missing files
 missing_files = expected_files - actual_files
@@ -64,13 +73,13 @@ if extra_files:
 else:
     print("✓ No unexpected files")
 
-# Check for duplicates
-if len(actual_files) != len(data['files']):
+# Check for duplicates (using normalized paths)
+if len(actual_files) != len(actual_files_normalized):
     print(f"\nWARNING: Duplicate entries detected")
-    print(f"  Array length: {len(data['files'])}")
+    print(f"  Array length: {len(actual_files_normalized)}")
     print(f"  Unique files: {len(actual_files)}")
     from collections import Counter
-    counts = Counter(data['files'])
+    counts = Counter(actual_files_normalized)
     duplicates = {file: count for file, count in counts.items() if count > 1}
     if duplicates:
         print("  Duplicated files:")

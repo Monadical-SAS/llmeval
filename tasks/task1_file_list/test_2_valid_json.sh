@@ -39,3 +39,5 @@ except Exception as e:
 EOF
 
 echo "SUCCESS: Valid JSON file!"
+
+cat ${files_json_path}
