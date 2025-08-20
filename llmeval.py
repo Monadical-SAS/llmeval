@@ -19,14 +19,8 @@ CUBBIX_COMMAND_TEMPLATE = [
     "cubbix",
     "-i",
     "goose",
-    "-c",
-    "services.openai.url=https://litellm.app.monadical.io",
-    "-c",
-    "services.openai.api_key=${LITELLM_API_KEY}",
     "--model",
     "{model}",
-    "--provider",
-    "openai",
     "--no-shell",
     "--run",
     """
@@ -179,6 +173,7 @@ async def execute_model_task(
         "session_size": "0.0",
         "result": "-",
         "start_time": start_time,
+        "test_results": [],
     }
 
     try:
@@ -198,11 +193,11 @@ async def execute_model_task(
             if logger:
                 logger.info("Copied install.sh to workspace")
 
-        test_sh = task_dir / "test.sh"
-        if test_sh.exists():
-            shutil.copy2(test_sh, workspace_dir)
+        test_files = sorted([f for f in task_dir.glob("*.sh") if f.name.startswith("test")])
+        for test_file in test_files:
+            shutil.copy2(test_file, workspace_dir)
             if logger:
-                logger.info("Copied test.sh to workspace")
+                logger.info(f"Copied {test_file.name} to workspace")
 
         input_workspace_dir = workspace_dir / "input"
 
@@ -264,32 +259,47 @@ async def execute_model_task(
             )
 
         model_statuses[model]["status"] = "Testing"
-
-        test_sh_workspace = workspace_dir / "test.sh"
-        if test_sh_workspace.exists():
-            if logger:
-                logger.info("Starting test execution", cwd=str(workspace_dir))
-
-            returncode, _ = await run_command(
-                ["bash", "test.sh"],
-                workspace_dir,
-                model_dir / "test.txt",
-                logger,
-                verbose,
-            )
-
-            if returncode != 0:
-                model_statuses[model]["status"] = "Failed"
-                model_statuses[model]["result"] = "❌ Test"
+        
+        test_files = sorted([f for f in workspace_dir.glob("*.sh") if f.name.startswith("test")])
+        test_results = []
+        
+        if test_files:
+            for test_file in test_files:
                 if logger:
-                    logger.error("Test execution failed", returncode=returncode)
-                return
+                    logger.info(f"Starting test execution: {test_file.name}", cwd=str(workspace_dir))
 
-            if logger:
-                logger.info("Test execution completed successfully")
+                test_output_name = f"test_{test_file.stem}.txt"
+                returncode, _ = await run_command(
+                    ["bash", test_file.name],
+                    workspace_dir,
+                    model_dir / test_output_name,
+                    logger,
+                    verbose,
+                )
+
+                test_results.append({
+                    "name": test_file.name,
+                    "passed": returncode == 0,
+                    "returncode": returncode,
+                    "output_file": test_output_name
+                })
+
+                if returncode != 0:
+                    model_statuses[model]["status"] = "Failed"
+                    model_statuses[model]["result"] = f"❌ {test_file.name}"
+                    model_statuses[model]["test_results"] = test_results
+                    if logger:
+                        logger.error(f"Test execution failed: {test_file.name}", returncode=returncode)
+                    return
+
+                if logger:
+                    logger.info(f"Test execution completed successfully: {test_file.name}")
+            
+            model_statuses[model]["test_results"] = test_results
         else:
             if logger:
-                logger.info("No test.sh found, skipping test phase")
+                logger.info("No test files found, skipping test phase")
+            model_statuses[model]["test_results"] = []
 
         model_statuses[model]["status"] = "Complete"
         model_statuses[model]["result"] = "✅ Pass"
@@ -320,6 +330,7 @@ async def execute_model_task(
             "command": " ".join(cubbix_command)
             if "cubbix_command" in locals()
             else "N/A",
+            "test_results": model_statuses[model].get("test_results", []),
         }
 
         with open(model_dir / "result.json", "w") as f:
@@ -359,8 +370,8 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
         f"## Task: {task_name}",
         f"**Run Path**: `runs/{run_path}`",
         "",
-        "| Model | Duration | Session Size | Status | Result |",
-        "|-------|----------|--------------|--------|--------|",
+        "| Model | Duration | Session Size | Status | Result | Tests Passed |",
+        "|-------|----------|--------------|--------|--------|--------------|",
     ]
 
     total_models = len(model_statuses)
@@ -373,9 +384,11 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
     for model, status in model_statuses.items():
         result_icon = "✅" if status["result"] == "✅ Pass" else "❌"
         result_text = status["result"].replace("✅ ", "").replace("❌ ", "")
+        test_results = status.get("test_results", [])
+        tests_passed = f"{sum(1 for t in test_results if t['passed'])}/{len(test_results)}" if test_results else "N/A"
         summary_lines.append(
             f"| {model} | {status['duration']} | {status['session_size']} KB | "
-            f"{result_icon} | {result_text} |"
+            f"{result_icon} | {result_text} | {tests_passed} |"
         )
 
     summary_lines.extend(
@@ -409,7 +422,9 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
         f"**Run Path**: `runs/{run_path}`",
         f"**Execution Date**: {timestamp}",
         f"**Total Models**: {total_models}",
-        f"**Success Rate**: {successful}/{total_models} ({successful/total_models*100:.1f}%)" if total_models > 0 else "**Success Rate**: 0/0 (0.0%)",
+        f"**Success Rate**: {successful}/{total_models} ({successful / total_models * 100:.1f}%)"
+        if total_models > 0
+        else "**Success Rate**: 0/0 (0.0%)",
         "",
     ]
 
@@ -417,69 +432,95 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
         result_icon = "✅" if status["result"] == "✅ Pass" else "❌"
         normalized_model = normalize_model_name(model)
         model_dir = run_dir / normalized_model
-        
-        detailed_summary_lines.extend([
-            f"## {result_icon} {model}",
-            "",
-            f"**Status**: {status['status']}",
-            f"**Duration**: {status['duration']}",
-            f"**Session Size**: {status['session_size']} KB",
-            "",
-        ])
+
+        detailed_summary_lines.extend(
+            [
+                f"## {result_icon} {model}",
+                "",
+                f"**Status**: {status['status']}",
+                f"**Duration**: {status['duration']}",
+                f"**Session Size**: {status['session_size']} KB",
+                "",
+            ]
+        )
 
         session_file = model_dir / "session.txt"
         if session_file.exists():
-            detailed_summary_lines.extend([
-                "### Session Output",
-                "",
-                "```",
-            ])
+            detailed_summary_lines.extend(
+                [
+                    "### Session Output",
+                    "",
+                    "```",
+                ]
+            )
             try:
-                with open(session_file, 'r') as f:
+                with open(session_file, "r") as f:
                     session_content = f.read()
                     detailed_summary_lines.append(session_content)
             except Exception:
                 detailed_summary_lines.append("Error reading session file")
-            detailed_summary_lines.extend([
-                "```",
-                "",
-            ])
-        
-        test_file = model_dir / "test.txt"
-        if test_file.exists():
-            detailed_summary_lines.extend([
-                "### Test Output",
-                "",
-                "```",
-            ])
-            try:
-                with open(test_file, 'r') as f:
-                    test_content = f.read()
-                    detailed_summary_lines.append(test_content)
-            except Exception:
-                detailed_summary_lines.append("Error reading test file")
-            detailed_summary_lines.extend([
-                "```",
-                "",
-            ])
-        
+            detailed_summary_lines.extend(
+                [
+                    "```",
+                    "",
+                ]
+            )
+
+        test_results = status.get("test_results", [])
+        if test_results:
+            detailed_summary_lines.extend(
+                [
+                    "### Test Results",
+                    "",
+                ]
+            )
+            for test_result in test_results:
+                test_status = "✅ PASSED" if test_result["passed"] else "❌ FAILED"
+                detailed_summary_lines.extend(
+                    [
+                        f"#### {test_result['name']} - {test_status}",
+                        "",
+                        "```",
+                    ]
+                )
+                test_output_file = model_dir / test_result["output_file"]
+                if test_output_file.exists():
+                    try:
+                        with open(test_output_file, "r") as f:
+                            test_content = f.read()
+                            detailed_summary_lines.append(test_content)
+                    except Exception:
+                        detailed_summary_lines.append(f"Error reading {test_result['output_file']}")
+                else:
+                    detailed_summary_lines.append(f"Test output file not found: {test_result['output_file']}")
+                detailed_summary_lines.extend(
+                    [
+                        "```",
+                        "",
+                    ]
+                )
+
         error_file = model_dir / "error.txt"
         if error_file.exists():
-            detailed_summary_lines.extend([
-                "### Error Details",
-                "",
-                "```",
-            ])
+            detailed_summary_lines.extend(
+                [
+                    "### Error Details",
+                    "",
+                    "```",
+                ]
+            )
             try:
-                with open(error_file, 'r') as f:
+                with open(error_file, "r") as f:
                     error_content = f.read()
                     detailed_summary_lines.append(error_content)
             except Exception:
                 detailed_summary_lines.append("Error reading error file")
-            detailed_summary_lines.extend([
-                "```",
-                "",
-            ])
+            detailed_summary_lines.extend(
+                [
+                    "```",
+                    "",
+                ]
+            )
 
         detailed_summary_lines.append("---")
         detailed_summary_lines.append("")
@@ -542,6 +583,7 @@ async def main():
             "session_size": "0.0",
             "result": "-",
             "start_time": 0,
+            "test_results": [],
         }
 
     if args.verbose:
