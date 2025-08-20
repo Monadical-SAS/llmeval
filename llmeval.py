@@ -157,6 +157,37 @@ async def run_command(command, cwd, output_file=None, logger=None, verbose=False
 
 
 async def execute_model_task(
+    model, task_dir, run_dir, model_statuses, semaphore, logger=None, verbose=False, timeout=300
+):
+    async with semaphore:
+        try:
+            return await execute_model_task_with_timeout(
+                model, task_dir, run_dir, model_statuses, logger, verbose, timeout=timeout
+            )
+        except asyncio.TimeoutError:
+            model_statuses[model]["status"] = "Timeout"
+            model_statuses[model]["result"] = "❌ Timeout"
+            if logger:
+                logger.error(f"Task timed out after {timeout} seconds", model=model)
+            return
+        except Exception as e:
+            model_statuses[model]["status"] = "Failed"
+            model_statuses[model]["result"] = "❌ Error"
+            if logger:
+                logger.error(f"Task failed with exception", model=model, error=str(e))
+            return
+
+
+async def execute_model_task_with_timeout(
+    model, task_dir, run_dir, model_statuses, logger=None, verbose=False, timeout=300
+):
+    return await asyncio.wait_for(
+        execute_model_task_impl(model, task_dir, run_dir, model_statuses, logger, verbose),
+        timeout=timeout
+    )
+
+
+async def execute_model_task_impl(
     model, task_dir, run_dir, model_statuses, logger=None, verbose=False
 ):
     start_time = time.time()
@@ -553,6 +584,18 @@ async def main():
         action="store_true",
         help="Use structlog instead of Rich console for detailed logging",
     )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=300,
+        help="Timeout in seconds for each model task (default: 300)",
+    )
+    parser.add_argument(
+        "--concurrent",
+        type=int,
+        default=4,
+        help="Maximum number of concurrent model tasks (default: 4)",
+    )
 
     args = parser.parse_args()
 
@@ -579,6 +622,8 @@ async def main():
         task_dir=str(task_dir),
         run_dir=str(run_dir),
         verbose_mode=args.verbose,
+        max_concurrent=args.concurrent,
+        timeout_seconds=args.timeout,
     )
 
     model_statuses = {}
@@ -592,13 +637,21 @@ async def main():
             "test_results": [],
         }
 
+    # Create semaphore to limit concurrent tasks
+    semaphore = asyncio.Semaphore(args.concurrent)
+
     if args.verbose:
         model_tasks = [
-            execute_model_task(model, task_dir, run_dir, model_statuses, logger, True)
+            execute_model_task(model, task_dir, run_dir, model_statuses, semaphore, logger, True, args.timeout)
             for model in models
         ]
 
-        await asyncio.gather(*model_tasks)
+        results = await asyncio.gather(*model_tasks, return_exceptions=True)
+
+        # Log any exceptions that occurred
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                logger.error(f"Task for model {models[i]} failed", error=str(result))
 
         logger.info("All model tasks completed")
     else:
@@ -608,12 +661,18 @@ async def main():
 
             model_tasks = [
                 execute_model_task(
-                    model, task_dir, run_dir, model_statuses, logger, False
+                    model, task_dir, run_dir, model_statuses, semaphore, logger, False, args.timeout
                 )
                 for model in models
             ]
 
-            await asyncio.gather(*model_tasks)
+            results = await asyncio.gather(*model_tasks, return_exceptions=True)
+            
+            # Log any exceptions that occurred
+            for i, result in enumerate(results):
+                if isinstance(result, Exception):
+                    logger.error(f"Task for model {models[i]} failed", error=str(result))
+            
             display_task.cancel()
 
             live.update(create_status_table(model_statuses))
