@@ -1,0 +1,78 @@
+# Nginx configuration for LLMEval static website
+# This configuration serves the evaluation results as a static website
+# while blocking access to workspace directories for security
+
+# Basic server configuration
+server {
+    listen 80;
+    server_name localhost;
+
+    # Document root - serves the runs/ directory
+    root /app/runs;
+
+    # Default file to serve when accessing directories
+    index index.html;
+
+    # Disable directory listing for security
+    autoindex off;
+
+    # Charset for text content
+    charset utf-8;
+
+    # SECURITY: Block access to all workspace/ subdirectories
+    # These contain sensitive working files that should not be exposed
+    location ~* /workspace/ {
+        deny all;
+        return 403;
+    }
+
+    # Main location block for serving static content
+    location / {
+        # Try to serve the requested file, fall back to index.html
+        try_files $uri $uri/ =404;
+    }
+
+    # MIME types configuration for proper content type headers
+    types {
+        text/html                             html htm;
+        text/css                              css;
+        application/javascript                js;
+        text/plain                            txt;
+        application/json                      json;
+    }
+
+    # Caching headers for static assets (CSS, JS)
+    # Cache for 1 week to improve performance
+    location ~* \.(css|js)$ {
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Shorter cache for HTML files (1 hour)
+    # Allows more frequent updates to be visible
+    location ~* \.(html)$ {
+        expires 1h;
+        add_header Cache-Control "public, must-revalidate";
+    }
+
+    # Cache for JSON and text files (1 day)
+    location ~* \.(json|txt)$ {
+        expires 1d;
+        add_header Cache-Control "public";
+    }
+
+    # Logging configuration
+    access_log /var/log/nginx/llmeval_access.log;
+    error_log /var/log/nginx/llmeval_error.log;
+
+    # Security headers
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Gzip compression for better performance
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/json application/javascript text/html;
+}

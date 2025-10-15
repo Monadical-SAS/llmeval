@@ -1,0 +1,10 @@
+# LLMEval Models Configuration
+# One model per line, comments start with #
+# Format: provider/model-name
+# Examples:
+#   litellm/openrouter/anthropic/claude-sonnet-4
+#   litellm/openrouter/openai/gpt-4
+#   litellm/openrouter/deepseek/deepseek-r1-0528
+
+litellm/openrouter/anthropic/claude-sonnet-4
+litellm/openrouter/openai/gpt-4

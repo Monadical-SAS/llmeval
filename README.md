@@ -1,13 +1,37 @@
 # LLMEval
 
-A tool for evaluating LLM models on coding tasks with automated testing and comparison,
-with detailed markdown summary.
+A tool for evaluating LLM models on coding tasks with automated testing, comparison, and a static website for viewing results.
+
+## Features
+
+- 🚀 **Automated Evaluations**: Run multiple LLM models on defined coding tasks
+- 📊 **Static Website**: Beautiful web interface with filtering and sorting
+- 🐳 **Docker Deployment**: Containerized setup with automated daily runs
+- 🔒 **Secure**: Nginx blocks sensitive workspace directories
+- 📈 **Rich Reports**: Detailed session logs and test outputs
+- ⏱️ **Scheduled Runs**: Cron-based automation for continuous evaluation
 
 ## Requirements
 
 - Python 3.8+
 - uv package manager
-- [Cubbi](https://github.com/monadical-sas/cubbi) with goose image, with at least one provider configured
+- [Cubbi](https://github.com/monadical-sas/cubbi) with goose image
+- LiteLLM instance with configured models
+
+## Configuration
+
+This project uses **LiteLLM exclusively**. Configure Cubbi with your LiteLLM instance:
+
+```bash
+# Set LiteLLM base URL and API key
+export LITELLM_BASE_URL=http://localhost:4000
+export LITELLM_API_KEY=your_api_key_here
+
+# Configure Cubbi
+cubbi config set providers.litellm.base_url $LITELLM_BASE_URL
+cubbi config set providers.litellm.api_key $LITELLM_API_KEY
+cubbi config models refresh
+```
 
 ## Usage
 
@@ -15,11 +39,11 @@ with detailed markdown summary.
 # Install dependencies
 uv add rich structlog
 
-# Evaluation with openai/anthropic provider
-uv run python llmeval.py --model openai/gpt-4,anthropic/claude-3-5-sonnet --task path/to/task
+# Run evaluation with LiteLLM models
+uv run python llmeval.py --model litellm/openrouter/anthropic/claude-sonnet-4 --task path/to/task
 
-# Evaluation with litellm provider (configured in cubbi), and using openrouter
-uv run python llmeval.py --model litellm/openrouter/moonshotai/kimi-k2 --task path/to/task
+# Multiple models
+uv run python llmeval.py --model litellm/model1,litellm/model2 --task path/to/task
 ```
 
 ## Task Structure
@@ -38,6 +62,63 @@ task_directory/
 2. **Execute**: Run cubbix with goose in input/ directory
 3. **Test**: Validate results with test.sh script
 4. **Report**: Generate summary and detailed reports
+
+## Static Website
+
+Generate a static website to view and filter evaluation results:
+
+```bash
+# Generate website from evaluation results
+python llmwebsite.py
+
+# Force regeneration of all pages
+python llmwebsite.py --force
+
+# View website
+open runs/index.html
+```
+
+Features:
+- 🎯 **Root Index**: Last 50 runs with filtering by model, date, task
+- 📋 **Run Details**: Model rankings, test results, links to outputs
+- 🎨 **Monadical Design**: Clean, modern interface inspired by monadical.com
+- 🔍 **Client-side Filtering**: Fast, responsive sorting and searching
+- 📱 **Responsive**: Works on desktop, tablet, and mobile
+
+## Docker Deployment
+
+Deploy with automated daily evaluations:
+
+```bash
+# Setup environment
+cp .env.example .env
+# Edit .env with your LiteLLM configuration:
+#   LITELLM_BASE_URL - URL of your LiteLLM instance
+#   LITELLM_API_KEY - API key for authentication
+#   EVAL_MODELS - Comma-separated list of models to evaluate
+#   EVAL_TASKS - Comma-separated list of tasks to run
+
+# Build and start
+docker-compose up -d
+
+# Run evaluation manually
+docker-compose exec llmeval bash /app/scripts/generate.sh
+
+# View website
+open http://localhost:8080
+
+# View logs
+docker-compose logs -f
+```
+
+The automated workflow (via cron or manual execution) will:
+1. Configure Cubbi with LiteLLM credentials
+2. Refresh available models from LiteLLM
+3. Build the Cubbi opencode image (cached after first run)
+4. Run evaluations for all configured tasks and models
+5. Generate static website with results
+
+See [DOCKER_TESTING.md](DOCKER_TESTING.md) for detailed testing guide.
 
 ## Output
 

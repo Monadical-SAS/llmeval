@@ -1,0 +1,8 @@
+# LLMEval Tasks Configuration
+# One task path per line, comments start with #
+# Paths are relative to the repository root
+# Example:
+#   tasks/task1_file_list
+#   tasks/task2_fix_python_syntax
+
+tasks/task1_file_list

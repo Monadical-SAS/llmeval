@@ -16,27 +16,29 @@ import structlog
 from rich.live import Live
 from rich.table import Table
 
+
 def strip_ansi(text):
     """Remove ANSI escape sequences from text."""
-    ansi_escape = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]')
-    return ansi_escape.sub('', text)
+    ansi_escape = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]")
+    return ansi_escape.sub("", text)
+
 
 def escape_markdown_code_blocks(text):
     """Escape triple backticks in text to prevent breaking markdown code blocks."""
     # Replace ``` with escaped version to prevent breaking markdown formatting
-    return text.replace('```', '\\`\\`\\`')
+    return text.replace("```", "\\`\\`\\`")
+
 
 CUBBIX_COMMAND_TEMPLATE = [
     "cubbix",
     "-i",
-    "goose",
+    "opencode",
     "--model",
     "{model}",
     "--no-shell",
     "--run",
     """
     if [ -f install.sh ]; then bash install.sh; fi;
-    cat ~/.config/goose/config.yaml;
     cd input && goose run -i ../task.md
     """,
     ".",
@@ -162,12 +164,25 @@ async def run_command(command, cwd, output_file=None, logger=None, verbose=False
 
 
 async def execute_model_task(
-    model, task_dir, run_dir, model_statuses, semaphore, logger=None, verbose=False, timeout=300
+    model,
+    task_dir,
+    run_dir,
+    model_statuses,
+    semaphore,
+    logger=None,
+    verbose=False,
+    timeout=300,
 ):
     async with semaphore:
         try:
             return await execute_model_task_with_timeout(
-                model, task_dir, run_dir, model_statuses, logger, verbose, timeout=timeout
+                model,
+                task_dir,
+                run_dir,
+                model_statuses,
+                logger,
+                verbose,
+                timeout=timeout,
             )
         except asyncio.TimeoutError:
             model_statuses[model]["status"] = "Timeout"
@@ -187,14 +202,18 @@ async def execute_model_task_with_timeout(
     model, task_dir, run_dir, model_statuses, logger=None, verbose=False, timeout=300
 ):
     return await asyncio.wait_for(
-        execute_model_task_impl(model, task_dir, run_dir, model_statuses, logger, verbose),
-        timeout=timeout
+        execute_model_task_impl(
+            model, task_dir, run_dir, model_statuses, logger, verbose
+        ),
+        timeout=timeout,
     )
 
 
 async def execute_model_task_impl(
     model, task_dir, run_dir, model_statuses, logger=None, verbose=False
 ):
+    # Extract task name from task directory
+    task_name = task_dir.name
     start_time = time.time()
     normalized_model = normalize_model_name(model)
     model_dir = run_dir / normalized_model
@@ -235,7 +254,9 @@ async def execute_model_task_impl(
             if logger:
                 logger.info("Copied install.sh to workspace")
 
-        test_files = sorted([f for f in task_dir.glob("*.sh") if f.name.startswith("test")])
+        test_files = sorted(
+            [f for f in task_dir.glob("*.sh") if f.name.startswith("test")]
+        )
         for test_file in test_files:
             shutil.copy2(test_file, workspace_dir)
             if logger:
@@ -301,14 +322,19 @@ async def execute_model_task_impl(
             )
 
         model_statuses[model]["status"] = "Testing"
-        
-        test_files = sorted([f for f in workspace_dir.glob("*.sh") if f.name.startswith("test")])
+
+        test_files = sorted(
+            [f for f in workspace_dir.glob("*.sh") if f.name.startswith("test")]
+        )
         test_results = []
-        
+
         if test_files:
             for test_file in test_files:
                 if logger:
-                    logger.info(f"Starting test execution: {test_file.name}", cwd=str(workspace_dir))
+                    logger.info(
+                        f"Starting test execution: {test_file.name}",
+                        cwd=str(workspace_dir),
+                    )
 
                 test_output_name = f"test_{test_file.stem}.txt"
                 returncode, _ = await run_command(
@@ -319,24 +345,31 @@ async def execute_model_task_impl(
                     verbose,
                 )
 
-                test_results.append({
-                    "name": test_file.name,
-                    "passed": returncode == 0,
-                    "returncode": returncode,
-                    "output_file": test_output_name
-                })
+                test_results.append(
+                    {
+                        "name": test_file.name,
+                        "passed": returncode == 0,
+                        "returncode": returncode,
+                        "output_file": test_output_name,
+                    }
+                )
 
                 if returncode != 0:
                     model_statuses[model]["status"] = "Failed"
                     model_statuses[model]["result"] = f"❌ {test_file.name}"
                     model_statuses[model]["test_results"] = test_results
                     if logger:
-                        logger.error(f"Test execution failed: {test_file.name}", returncode=returncode)
+                        logger.error(
+                            f"Test execution failed: {test_file.name}",
+                            returncode=returncode,
+                        )
                     return
 
                 if logger:
-                    logger.info(f"Test execution completed successfully: {test_file.name}")
-            
+                    logger.info(
+                        f"Test execution completed successfully: {test_file.name}"
+                    )
+
             model_statuses[model]["test_results"] = test_results
         else:
             if logger:
@@ -364,6 +397,7 @@ async def execute_model_task_impl(
 
         result_data = {
             "model": model,
+            "task_name": task_name,
             "status": model_statuses[model]["status"],
             "result": model_statuses[model]["result"],
             "duration_seconds": duration,
@@ -427,7 +461,11 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
         result_icon = "✅" if status["result"] == "✅ Pass" else "❌"
         result_text = status["result"].replace("✅ ", "").replace("❌ ", "")
         test_results = status.get("test_results", [])
-        tests_passed = f"{sum(1 for t in test_results if t['passed'])}/{len(test_results)}" if test_results else "N/A"
+        tests_passed = (
+            f"{sum(1 for t in test_results if t['passed'])}/{len(test_results)}"
+            if test_results
+            else "N/A"
+        )
         summary_lines.append(
             f"| {model} | {status['duration']} | {status['session_size']} KB | "
             f"{result_icon} | {result_text} | {tests_passed} |"
@@ -535,12 +573,18 @@ def generate_summary(run_dir, task_name, model_statuses, logger):
                             test_content = f.read()
                             # Strip ANSI codes and escape markdown code blocks
                             cleaned_content = strip_ansi(test_content)
-                            escaped_content = escape_markdown_code_blocks(cleaned_content)
+                            escaped_content = escape_markdown_code_blocks(
+                                cleaned_content
+                            )
                             detailed_summary_lines.append(escaped_content)
                     except Exception:
-                        detailed_summary_lines.append(f"Error reading {test_result['output_file']}")
+                        detailed_summary_lines.append(
+                            f"Error reading {test_result['output_file']}"
+                        )
                 else:
-                    detailed_summary_lines.append(f"Test output file not found: {test_result['output_file']}")
+                    detailed_summary_lines.append(
+                        f"Test output file not found: {test_result['output_file']}"
+                    )
                 detailed_summary_lines.extend(
                     [
                         "```",
@@ -656,7 +700,16 @@ async def main():
 
     if args.verbose:
         model_tasks = [
-            execute_model_task(model, task_dir, run_dir, model_statuses, semaphore, logger, True, args.timeout)
+            execute_model_task(
+                model,
+                task_dir,
+                run_dir,
+                model_statuses,
+                semaphore,
+                logger,
+                True,
+                args.timeout,
+            )
             for model in models
         ]
 
@@ -675,18 +728,27 @@ async def main():
 
             model_tasks = [
                 execute_model_task(
-                    model, task_dir, run_dir, model_statuses, semaphore, logger, False, args.timeout
+                    model,
+                    task_dir,
+                    run_dir,
+                    model_statuses,
+                    semaphore,
+                    logger,
+                    False,
+                    args.timeout,
                 )
                 for model in models
             ]
 
             results = await asyncio.gather(*model_tasks, return_exceptions=True)
-            
+
             # Log any exceptions that occurred
             for i, result in enumerate(results):
                 if isinstance(result, Exception):
-                    logger.error(f"Task for model {models[i]} failed", error=str(result))
-            
+                    logger.error(
+                        f"Task for model {models[i]} failed", error=str(result)
+                    )
+
             display_task.cancel()
 
             live.update(create_status_table(model_statuses))
