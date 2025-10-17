@@ -16,55 +16,11 @@ log() {
 
 log "=== LLMEval Container Starting ==="
 
-# Step 1: Setup podman storage
-log "Setting up podman storage..."
-mkdir -p /var/lib/containers/storage /run/containers/storage
-if podman info > /dev/null 2>&1; then
-    log "✓ Podman storage initialized successfully"
-else
-    log "WARNING: Podman initialization check failed, but continuing..."
-fi
-
-# Step 1b: Fix CNI network version to be compatible with firewall plugin
-log "Fixing CNI network version compatibility..."
-if [ -f /etc/cni/net.d/cubbi-network.conflist ]; then
-    # Change cniVersion from 1.0.0 to 0.4.0 for firewall plugin compatibility
-    sed -i 's/"cniVersion": "1\.0\.0"/"cniVersion": "0.4.0"/' /etc/cni/net.d/cubbi-network.conflist
-    log "✓ CNI network version updated to 0.4.0"
-else
-    log "INFO: CNI network config not found yet (will be created by podman on first use)"
-fi
-
-# Step 1c: Create cubbi network if it doesn't exist
-log "Setting up cubbi network..."
-if ! podman network exists cubbi-network 2>/dev/null; then
-    podman network create cubbi-network > /dev/null 2>&1
-    log "✓ Created cubbi-network"
-fi
-
-# Fix CNI version after network creation
-if [ -f /etc/cni/net.d/cubbi-network.conflist ]; then
-    sed -i 's/"cniVersion": "1\.0\.0"/"cniVersion": "0.4.0"/' /etc/cni/net.d/cubbi-network.conflist
-    log "✓ CNI network version updated to 0.4.0"
-fi
-
-# Step 1d: Enable Podman Docker-compatible socket for cubbi
-log "Enabling Podman Docker-compatible socket..."
-mkdir -p /var/run
-# Start podman socket service in the background
-podman system service --time=0 unix:///var/run/docker.sock &
-sleep 2  # Give the socket time to start
-if [ -S /var/run/docker.sock ]; then
-    log "✓ Podman Docker-compatible socket enabled at /var/run/docker.sock"
-else
-    log "WARNING: Failed to create Docker-compatible socket, but continuing..."
-fi
-
-# Step 2: Create necessary directories
+# Step 1: Create necessary directories
 log "Creating application directories..."
 mkdir -p "${LOGS_DIR}" "${APP_DIR}/runs" "${APP_DIR}/config"
 
-# Step 3: Install cron job for daily evaluation runs
+# Step 2: Install cron job for daily evaluation runs
 log "Installing cron job (schedule: ${CRON_SCHEDULE})..."
 
 # Create cron job that runs generate.sh
@@ -77,13 +33,12 @@ echo "${CRON_JOB}" | crontab -
 if crontab -l | grep -q "generate.sh"; then
     log "✓ Cron job installed successfully"
     log "  Schedule: ${CRON_SCHEDULE} (CST/CDT)"
-    log "  Next run: $(date -d 'next day 12:00' +'%Y-%m-%d %H:%M:%S %Z' 2>/dev/null || echo 'Check cron logs')"
 else
     log "ERROR: Failed to install cron job"
     exit 1
 fi
 
-# Step 4: Configure and start nginx
+# Step 3: Configure and start nginx
 log "Starting nginx web server..."
 
 # Test nginx configuration
@@ -106,7 +61,7 @@ else
     exit 1
 fi
 
-# Step 5: Start cron daemon
+# Step 4: Start cron daemon
 log "Starting cron daemon..."
 cron
 
@@ -118,7 +73,7 @@ else
     exit 1
 fi
 
-# Step 6: Setup signal handlers for graceful shutdown
+# Step 5: Setup signal handlers for graceful shutdown
 shutdown_handler() {
     log "=== Received shutdown signal, stopping services... ==="
 
@@ -130,10 +85,6 @@ shutdown_handler() {
     log "Stopping cron..."
     killall cron 2>/dev/null || true
 
-    # Stop podman socket service
-    log "Stopping podman socket service..."
-    pkill -f "podman system service" 2>/dev/null || true
-
     log "✓ Services stopped gracefully"
     exit 0
 }
@@ -141,7 +92,7 @@ shutdown_handler() {
 # Trap SIGTERM and SIGINT for graceful shutdown
 trap shutdown_handler SIGTERM SIGINT
 
-# Step 7: Display startup information
+# Step 6: Display startup information
 log "=== LLMEval Container Ready ==="
 log "Web server: http://localhost:80"
 log "Application directory: ${APP_DIR}"
@@ -155,10 +106,10 @@ log "To view cron logs:"
 log "  docker-compose exec llmeval tail -f ${LOGS_DIR}/cron.log"
 log ""
 
-# Step 8: Keep container running by tailing logs
+# Step 7: Keep container running by tailing logs
 # This blocks the script and keeps the container alive
 log "Container running, tailing logs..."
-touch "${LOGS_DIR}/cron.log" "${LOGS_DIR}/entrypoint.log"
+touch "${LOGS_DIR}/cron.log"
 
 # Tail multiple log files to keep container running
 tail -f "${LOGS_DIR}/cron.log" /var/log/nginx/access.log /var/log/nginx/error.log 2>/dev/null || {

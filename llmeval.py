@@ -239,6 +239,7 @@ async def execute_model_task_impl(
 
     try:
         workspace_dir.mkdir(parents=True, exist_ok=True)
+        workspace_dir.chmod(0o777)
         if logger:
             logger.info("Created workspace directory", workspace_dir=str(workspace_dir))
 

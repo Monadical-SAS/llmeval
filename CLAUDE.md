@@ -184,5 +184,4 @@ docker-compose down
 
 ### Security
 - Nginx blocks access to `workspace/` directories
-- Podman runs containers in rootless mode
 - API keys via environment variables only

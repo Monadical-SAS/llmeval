@@ -1,43 +1,40 @@
 services:
+  docker:
+    image: docker:dind
+    privileged: true
+    volumes:
+      - dind-storage:/var/lib/docker
+      - dind-certs:/certs
+      - shared-tmp:/tmp
+      - ./runs:/app/runs
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+
   llmeval:
     # Build from local Dockerfile
     build:
       context: .
       dockerfile: Dockerfile
 
-    # Privileged mode is required for podman-in-docker and systemd
-    # This allows the container to run nested containers for LLM evaluations
-    # Required for cgroup v2 support, nested container execution, and systemd as PID 1
-    privileged: true
-
-    # Use host cgroup namespace to avoid issues with systemd
-    # This is required for systemd to properly manage cgroups
-    cgroup: host
-
-    # Systemd requires these tmpfs mounts for proper operation
-    # Note: /run should NOT be tmpfs - systemd manages it
-    # Note: /tmp should NOT be tmpfs - podman containers need persistent temp files
-    tmpfs:
-      - /run/lock
     # Port mapping: host:container
     # Map host port 8080 to container port 80 (nginx)
-    #ports:
-    #  - "8080:80"
+    ports:
+      - "8080:80"
 
-    # Volume mounts - simplified to only essential shared storage
+    depends_on:
+      - docker
+
+    # Volume mounts
     volumes:
-      # Persistent evaluation results - survives container restarts
+      - dind-certs:/certs:ro
+      - shared-tmp:/tmp
       - ./runs:/app/runs
-
-      # Podman storage volume for container images
-      # This persists the cubbi opencode image between container restarts
-      - podman-storage:/var/lib/containers/storage
-
-      # Mount cgroup for systemd (read-write for proper delegation)
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
     # Environment variables for API keys and configuration
     environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_TLS_VERIFY=1
+      - DOCKER_CERT_PATH=/certs/client
       # LiteLLM API key for accessing LLM providers
       # Set this in your .env file or pass directly
       - LITELLM_BASE_URL=${LITELLM_BASE_URL:-}
@@ -65,9 +62,7 @@ services:
     # This ensures the service recovers from crashes automatically
     restart: unless-stopped
 
-# Named volumes for persistent data
 volumes:
-  # Podman storage for container images
-  # This prevents re-downloading the cubbi opencode image on every restart
-  podman-storage:
-    driver: local
+  dind-storage:
+  dind-certs:
+  shared-tmp:

@@ -22,6 +22,13 @@ log() {
 
 log "=== Starting LLMEval generation workflow ==="
 
+# Verify Docker is accessible
+if ! docker info > /dev/null 2>&1; then
+    log "ERROR: Docker is not accessible. Check that /var/run/docker.sock is mounted correctly."
+    exit 1
+fi
+log "✓ Docker is accessible"
+
 # Change to application directory
 cd "${APP_DIR}" || {
     log "ERROR: Failed to change to ${APP_DIR}"
@@ -43,6 +50,13 @@ if [[ -z "${LITELLM_API_KEY:-}" ]]; then
 fi
 
 # Configure LiteLLM provider
+if cubbi config set providers.litellm.type openai >> "${LOG_FILE}" 2>&1; then
+    log "✓ Set LiteLLM type: openai"
+else
+    log "ERROR: Failed to set LiteLLM type"
+    exit 1
+fi
+
 if cubbi config set providers.litellm.base_url "${LITELLM_BASE_URL}" >> "${LOG_FILE}" 2>&1; then
     log "✓ Set LiteLLM base URL: ${LITELLM_BASE_URL}"
 else
