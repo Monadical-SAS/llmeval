@@ -38,30 +38,7 @@ else
     exit 1
 fi
 
-# Step 3: Configure and start nginx
-log "Starting nginx web server..."
-
-# Test nginx configuration
-if nginx -t > /dev/null 2>&1; then
-    log "✓ Nginx configuration is valid"
-else
-    log "ERROR: Invalid nginx configuration"
-    nginx -t
-    exit 1
-fi
-
-# Start nginx in the background
-nginx
-
-# Verify nginx is running
-if pgrep -x nginx > /dev/null; then
-    log "✓ Nginx started successfully on port 80"
-else
-    log "ERROR: Failed to start nginx"
-    exit 1
-fi
-
-# Step 4: Start cron daemon
+# Step 3: Start cron daemon
 log "Starting cron daemon..."
 cron
 
@@ -73,13 +50,9 @@ else
     exit 1
 fi
 
-# Step 5: Setup signal handlers for graceful shutdown
+# Step 4: Setup signal handlers for graceful shutdown
 shutdown_handler() {
     log "=== Received shutdown signal, stopping services... ==="
-
-    # Stop nginx gracefully
-    log "Stopping nginx..."
-    nginx -s quit 2>/dev/null || killall nginx 2>/dev/null || true
 
     # Stop cron
     log "Stopping cron..."
@@ -92,9 +65,9 @@ shutdown_handler() {
 # Trap SIGTERM and SIGINT for graceful shutdown
 trap shutdown_handler SIGTERM SIGINT
 
-# Step 6: Display startup information
+# Step 5: Display startup information
 log "=== LLMEval Container Ready ==="
-log "Web server: http://localhost:80"
+log "Web server: Served by Caddy (separate container)"
 log "Application directory: ${APP_DIR}"
 log "Logs directory: ${LOGS_DIR}"
 log "Cron schedule: ${CRON_SCHEDULE}"
@@ -106,13 +79,13 @@ log "To view cron logs:"
 log "  docker-compose exec llmeval tail -f ${LOGS_DIR}/cron.log"
 log ""
 
-# Step 7: Keep container running by tailing logs
+# Step 6: Keep container running by tailing logs
 # This blocks the script and keeps the container alive
 log "Container running, tailing logs..."
 touch "${LOGS_DIR}/cron.log"
 
-# Tail multiple log files to keep container running
-tail -f "${LOGS_DIR}/cron.log" /var/log/nginx/access.log /var/log/nginx/error.log 2>/dev/null || {
+# Tail cron log to keep container running
+tail -f "${LOGS_DIR}/cron.log" 2>/dev/null || {
     log "Log files not available yet, using sleep to keep container running"
     sleep infinity
 }

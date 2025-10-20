@@ -13,7 +13,6 @@ ENV TZ=America/Chicago
 # - python3.13, python3-pip: Python runtime and package manager
 # - docker-cli: Docker client for cubbi to execute LLM evaluation environments
 # - cron: For scheduled evaluation runs
-# - nginx: Web server to serve static evaluation results
 # - git: For potential repository updates and version control
 # - tzdata: Timezone data for correct scheduling
 RUN apt-get update && apt-get install -y \
@@ -22,7 +21,6 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     software-properties-common \
     cron \
-    nginx \
     git \
     tzdata \
     && rm -rf /var/lib/apt/lists/*
@@ -85,20 +83,11 @@ RUN mkdir -p /app/runs /app/logs /app/config /app/static /app/scripts && \
 # Note: uv sync will read from pyproject.toml
 RUN cd /app && uv pip install --system rich structlog strip-ansi
 
-# Configure Nginx to serve the static website
-# Copy our custom configuration and remove the default site
-RUN rm -f /etc/nginx/sites-enabled/default
-COPY nginx.conf.example /etc/nginx/sites-available/llmeval.conf
-RUN ln -sf /etc/nginx/sites-available/llmeval.conf /etc/nginx/sites-enabled/llmeval.conf
-
 # Make scripts executable
 RUN chmod +x /app/scripts/*.sh
 
 # Setup cron for daily evaluation runs
 RUN touch /var/log/cron.log
-
-# Expose port 80 for nginx web server
-EXPOSE 80
 
 # Use entrypoint script to initialize services
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]

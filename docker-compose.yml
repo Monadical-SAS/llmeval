@@ -1,68 +1,17 @@
 services:
-  docker:
-    image: docker:dind
-    privileged: true
-    volumes:
-      - dind-storage:/var/lib/docker
-      - dind-certs:/certs
-      - shared-tmp:/tmp
-      - ./runs:/app/runs
-    environment:
-      - DOCKER_TLS_CERTDIR=/certs
-
-  llmeval:
-    # Build from local Dockerfile
-    build:
-      context: .
-      dockerfile: Dockerfile
-
-    # Port mapping: host:container
-    # Map host port 8080 to container port 80 (nginx)
+  caddy:
+    image: caddy:2-alpine
     ports:
-      - "8080:80"
-
-    depends_on:
-      - docker
-
-    # Volume mounts
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
     volumes:
-      - dind-certs:/certs:ro
-      - shared-tmp:/tmp
-      - ./runs:/app/runs
-
-    # Environment variables for API keys and configuration
-    environment:
-      - DOCKER_HOST=tcp://docker:2376
-      - DOCKER_TLS_VERIFY=1
-      - DOCKER_CERT_PATH=/certs/client
-      # LiteLLM API key for accessing LLM providers
-      # Set this in your .env file or pass directly
-      - LITELLM_BASE_URL=${LITELLM_BASE_URL:-}
-      - LITELLM_API_KEY=${LITELLM_API_KEY:-}
-
-      # OpenRouter API key for accessing models via OpenRouter
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-
-      # Timezone for correct cron scheduling (Central Standard Time)
-      - TZ=America/Chicago
-
-      # Cron schedule (default: 12:00 CST daily)
-      # Format: minute hour day month weekday
-      - CRON_SCHEDULE=${CRON_SCHEDULE:-0 12 * * *}
-
-      # Models to evaluate (comma-separated)
-      # Example: litellm/openrouter/anthropic/claude-sonnet-4,litellm/openrouter/openai/gpt-4
-      - EVAL_MODELS=${EVAL_MODELS:-litellm/openrouter/anthropic/claude-sonnet-4,litellm/openrouter/openai/gpt-4}
-
-      # Tasks to run (comma-separated paths relative to /app/)
-      # Example: tasks/task1_file_list,tasks/task2_fix_python_syntax
-      - EVAL_TASKS=${EVAL_TASKS:-tasks/task1_file_list}
-
-    # Restart policy: restart unless explicitly stopped
-    # This ensures the service recovers from crashes automatically
+      - ./runs:/srv/runs:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
     restart: unless-stopped
 
 volumes:
-  dind-storage:
-  dind-certs:
-  shared-tmp:
+  caddy-data:
+  caddy-config:

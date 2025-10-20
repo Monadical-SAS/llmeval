@@ -142,26 +142,27 @@ uv run python llmeval.py --verbose --model <model> --task <path>
 - `static/main.js` - Client-side filtering/sorting
 - Copied to `runs/static/` during generation
 
-## Docker Deployment
+## Deployment
 
-### Building and Running
+### Local Execution with Caddy Web Server
+
+The evaluation framework runs locally on your machine, while Caddy serves the static website from a Docker container.
+
 ```bash
-# Build the Docker image
-docker-compose build
-
-# Start the service
+# Start Caddy web server
 docker-compose up -d
 
-# Run evaluation manually
-docker-compose exec llmeval bash /app/scripts/generate.sh
+# Run evaluation locally (after configuring LiteLLM)
+uv run python llmeval.py --model litellm/openrouter/anthropic/claude-sonnet-4 --task tasks/task1_file_list
 
-# View logs
-docker-compose logs -f
+# Generate static website
+uv run python llmwebsite.py
 
 # Access website
-open http://localhost:8080
+open https://eval.monadical.com
+# or locally: http://localhost
 
-# Stop service
+# Stop Caddy
 docker-compose down
 ```
 
@@ -169,19 +170,38 @@ docker-compose down
 - `.env` - Environment variables (copy from `.env.example`). Required variables:
   - `LITELLM_BASE_URL` - URL of your LiteLLM instance
   - `LITELLM_API_KEY` - API key for LiteLLM authentication
-  - `EVAL_MODELS` - Comma-separated list of models to evaluate
-  - `EVAL_TASKS` - Comma-separated list of task paths to run
+  - `EVAL_MODELS` - Comma-separated list of models to evaluate (for automated scripts)
+  - `EVAL_TASKS` - Comma-separated list of task paths to run (for automated scripts)
 
-### Automated Runs
-- Cron job runs daily at 12:00 CST (configurable via `CRON_SCHEDULE`)
-- Calls `scripts/generate.sh` which:
-  1. Configures Cubbi with LiteLLM credentials
-  2. Refreshes available models from LiteLLM
-  3. Builds cubbi opencode image (cached)
-  4. Runs llmeval.py for each task
-  5. Generates static website
-- Logs stored in `logs/`
+### Automated Runs with Cron
+
+For automated daily runs, set up a cron job on your local machine or server:
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add daily run at 12:00 CST (example)
+0 12 * * * cd /path/to/evals && /path/to/scripts/generate.sh >> logs/cron.log 2>&1
+```
+
+The `scripts/generate.sh` script:
+1. Configures Cubbi with LiteLLM credentials
+2. Refreshes available models from LiteLLM
+3. Builds cubbi opencode image (cached)
+4. Runs llmeval.py for each task
+5. Generates static website
+
+Logs are stored in `logs/`
+
+### Web Server (Caddy)
+
+- Caddy automatically handles HTTPS via Let's Encrypt for `eval.monadical.com`
+- Serves static files from `runs/` directory
+- Blocks access to `workspace/` directories for security
+- Configured via `Caddyfile`
 
 ### Security
-- Nginx blocks access to `workspace/` directories
+- Caddy blocks access to `workspace/` directories
 - API keys via environment variables only
+- Evaluations run in isolated Docker containers via Cubbi

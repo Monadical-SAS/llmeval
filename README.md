@@ -6,15 +6,16 @@ A tool for evaluating LLM models on coding tasks with automated testing, compari
 
 - 🚀 **Automated Evaluations**: Run multiple LLM models on defined coding tasks
 - 📊 **Static Website**: Beautiful web interface with filtering and sorting
-- 🐳 **Docker Deployment**: Containerized setup with automated daily runs
-- 🔒 **Secure**: Nginx blocks sensitive workspace directories
+- 🌐 **Caddy Web Server**: Automatic HTTPS with Let's Encrypt for eval.monadical.com
+- 🔒 **Secure**: Caddy blocks sensitive workspace directories
 - 📈 **Rich Reports**: Detailed session logs and test outputs
 - ⏱️ **Scheduled Runs**: Cron-based automation for continuous evaluation
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.13+
 - uv package manager
+- Docker (for running Cubbi containers and Caddy web server)
 - [Cubbi](https://github.com/monadical-sas/cubbi) with goose image
 - LiteLLM instance with configured models
 
@@ -85,9 +86,11 @@ Features:
 - 🔍 **Client-side Filtering**: Fast, responsive sorting and searching
 - 📱 **Responsive**: Works on desktop, tablet, and mobile
 
-## Docker Deployment
+## Deployment
 
-Deploy with automated daily evaluations:
+### Local Execution with Caddy Web Server
+
+The evaluation framework runs locally, while Caddy serves the static website:
 
 ```bash
 # Setup environment
@@ -95,30 +98,44 @@ cp .env.example .env
 # Edit .env with your LiteLLM configuration:
 #   LITELLM_BASE_URL - URL of your LiteLLM instance
 #   LITELLM_API_KEY - API key for authentication
-#   EVAL_MODELS - Comma-separated list of models to evaluate
-#   EVAL_TASKS - Comma-separated list of tasks to run
+#   EVAL_MODELS - Comma-separated list of models to evaluate (for automation)
+#   EVAL_TASKS - Comma-separated list of tasks to run (for automation)
 
-# Build and start
+# Start Caddy web server
 docker-compose up -d
 
-# Run evaluation manually
-docker-compose exec llmeval bash /app/scripts/generate.sh
+# Run evaluation locally
+uv run python llmeval.py --model litellm/openrouter/anthropic/claude-sonnet-4 --task tasks/task1_file_list
+
+# Generate static website
+uv run python llmwebsite.py
 
 # View website
-open http://localhost:8080
+open https://eval.monadical.com
+# or locally: http://localhost
 
-# View logs
+# View Caddy logs
 docker-compose logs -f
 ```
 
-The automated workflow (via cron or manual execution) will:
+### Automated Runs
+
+For automated daily evaluations, set up a cron job:
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add daily run at 12:00 CST (example)
+0 12 * * * cd /path/to/evals && /path/to/scripts/generate.sh >> logs/cron.log 2>&1
+```
+
+The `scripts/generate.sh` workflow will:
 1. Configure Cubbi with LiteLLM credentials
 2. Refresh available models from LiteLLM
 3. Build the Cubbi opencode image (cached after first run)
 4. Run evaluations for all configured tasks and models
 5. Generate static website with results
-
-See [DOCKER_TESTING.md](DOCKER_TESTING.md) for detailed testing guide.
 
 ## Output
 
