@@ -1,12 +1,12 @@
 #!/bin/bash
 # generate.sh - Main script for running LLM evaluations and generating static website
 # This script is executed daily by cron to perform automated evaluations
+# Assumes it is run from the application directory (/app)
 
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 
-# Configuration
-APP_DIR="/app"
-LOGS_DIR="${APP_DIR}/logs"
+# Configuration - assume current directory is app directory
+LOGS_DIR="logs"
 
 # Create logs directory if it doesn't exist
 mkdir -p "${LOGS_DIR}"
@@ -21,19 +21,14 @@ log() {
 }
 
 log "=== Starting LLMEval generation workflow ==="
+log "Working directory: $(pwd)"
 
 # Verify Docker is accessible
 if ! docker info > /dev/null 2>&1; then
-    log "ERROR: Docker is not accessible. Check that /var/run/docker.sock is mounted correctly."
+    log "ERROR: Docker is not accessible. Check that DOCKER_HOST is configured correctly."
     exit 1
 fi
 log "✓ Docker is accessible"
-
-# Change to application directory
-cd "${APP_DIR}" || {
-    log "ERROR: Failed to change to ${APP_DIR}"
-    exit 1
-}
 
 # Step 1: Configure cubbi with LiteLLM
 log "Configuring cubbi with LiteLLM..."
@@ -126,8 +121,8 @@ for TASK in "${TASKS[@]}"; do
     log "--- Processing task: ${TASK} ---"
 
     # Verify task directory exists
-    if [[ ! -d "${APP_DIR}/${TASK}" ]]; then
-        log "WARNING: Task directory not found: ${APP_DIR}/${TASK}, skipping..."
+    if [[ ! -d "${TASK}" ]]; then
+        log "WARNING: Task directory not found: ${TASK}, skipping..."
         ((FAILED_TASKS++))
         continue
     fi
