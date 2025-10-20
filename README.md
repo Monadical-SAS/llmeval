@@ -6,7 +6,7 @@ A tool for evaluating LLM models on coding tasks with automated testing, compari
 
 - 🚀 **Automated Evaluations**: Run multiple LLM models on defined coding tasks
 - 📊 **Static Website**: Beautiful web interface with filtering and sorting
-- 🌐 **Caddy Web Server**: Automatic HTTPS with Let's Encrypt for eval.monadical.com
+- 🌐 **Caddy Web Server**: Automatic HTTPS with Let's Encrypt for eval.monadical.io
 - 🔒 **Secure**: Caddy blocks sensitive workspace directories
 - 📈 **Rich Reports**: Detailed session logs and test outputs
 - ⏱️ **Scheduled Runs**: Cron-based automation for continuous evaluation
@@ -111,7 +111,7 @@ uv run python llmeval.py --model litellm/openrouter/anthropic/claude-sonnet-4 --
 uv run python llmwebsite.py
 
 # View website
-open https://eval.monadical.com
+open https://eval.monadical.io
 # or locally: http://localhost
 
 # View Caddy logs

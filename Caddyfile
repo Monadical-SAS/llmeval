@@ -1,7 +1,7 @@
 # Caddyfile for LLMEval static website
 # Serves evaluation results with automatic HTTPS via Let's Encrypt
 
-eval.monadical.com {
+eval.monadical.io {
 	# Document root - serves the runs/ directory
 	root * /srv/runs
 

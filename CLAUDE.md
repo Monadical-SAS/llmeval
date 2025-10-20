@@ -159,7 +159,7 @@ uv run python llmeval.py --model litellm/openrouter/anthropic/claude-sonnet-4 --
 uv run python llmwebsite.py
 
 # Access website
-open https://eval.monadical.com
+open https://eval.monadical.io
 # or locally: http://localhost
 
 # Stop Caddy
@@ -196,7 +196,7 @@ Logs are stored in `logs/`
 
 ### Web Server (Caddy)
 
-- Caddy automatically handles HTTPS via Let's Encrypt for `eval.monadical.com`
+- Caddy automatically handles HTTPS via Let's Encrypt for `eval.monadical.io`
 - Serves static files from `runs/` directory
 - Blocks access to `workspace/` directories for security
 - Configured via `Caddyfile`
