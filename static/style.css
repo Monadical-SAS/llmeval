@@ -444,11 +444,17 @@ th {
 
 /* Test columns and Task columns - fixed narrow width */
 .run-page th.test-header,
-.run-page td.test-cell,
-.overview-page th.task-header {
+.run-page td.test-cell {
   width: 60px;
   min-width: 60px;
   max-width: 60px;
+}
+
+/* Run overview page - Task columns fit to content */
+.overview-page th.task-header,
+.overview-page td.test-cell {
+  width: 1%;
+  white-space: nowrap;
 }
 
 /* Task detail page - Model column is 2nd, flexible width */
@@ -458,20 +464,18 @@ th {
   min-width: 200px;
 }
 
-/* Run overview page - Model column is 1st, flexible width */
+/* Run overview page - Model column is 1st, fit content */
 .overview-page th:nth-child(1),
 .overview-page td:nth-child(1) {
-  width: auto !important;
-  min-width: 200px !important;
-  max-width: none !important;
+  width: 1%;
+  white-space: nowrap;
 }
 
-/* Run overview page - Overall Score column is 2nd, fixed width */
+/* Run overview page - Overall Score column is 2nd, fit content */
 .overview-page th:nth-child(2),
 .overview-page td:nth-child(2) {
-  width: 100px !important;
-  min-width: 100px !important;
-  max-width: 100px !important;
+  width: 1%;
+  white-space: nowrap;
 }
 
 /* Root page - Models Score column (3rd column) is flexible */

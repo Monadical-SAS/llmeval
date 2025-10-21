@@ -39,7 +39,7 @@ CUBBIX_COMMAND_TEMPLATE = [
     "--run",
     """
     if [ -f install.sh ]; then bash install.sh; fi;
-    cd input && opencode run --format json < ../task.md
+    cd input && opencode run < ../task.md
     """,
     ".",
 ]
@@ -193,18 +193,34 @@ async def execute_model_task(
             model_statuses[task_name][model]["status"] = "Timeout"
             model_statuses[task_name][model]["result"] = "❌ Timeout"
             if logger:
-                logger.error(f"Task timed out after {timeout} seconds", model=model, task=task_name)
+                logger.error(
+                    f"Task timed out after {timeout} seconds",
+                    model=model,
+                    task=task_name,
+                )
             return
         except Exception as e:
             model_statuses[task_name][model]["status"] = "Failed"
             model_statuses[task_name][model]["result"] = "❌ Error"
             if logger:
-                logger.error(f"Task failed with exception", model=model, task=task_name, error=str(e))
+                logger.error(
+                    f"Task failed with exception",
+                    model=model,
+                    task=task_name,
+                    error=str(e),
+                )
             return
 
 
 async def execute_model_task_with_timeout(
-    model, task_dir, task_name, run_dir, model_statuses, logger=None, verbose=False, timeout=300
+    model,
+    task_dir,
+    task_name,
+    run_dir,
+    model_statuses,
+    logger=None,
+    verbose=False,
+    timeout=300,
 ):
     return await asyncio.wait_for(
         execute_model_task_impl(
@@ -403,7 +419,10 @@ async def execute_model_task_impl(
         model_statuses[task_name][model]["result"] = "❌ Error"
         if logger:
             logger.error(
-                "Unexpected error during model execution", error=str(e), model=model, task=task_name
+                "Unexpected error during model execution",
+                error=str(e),
+                model=model,
+                task=task_name,
             )
         with open(model_dir / "error.txt", "w") as f:
             f.write(str(e))
@@ -444,8 +463,12 @@ async def update_display(model_statuses, live):
         for task_name in model_statuses:
             for model in model_statuses[task_name]:
                 if model_statuses[task_name][model]["status"] in ["Running", "Testing"]:
-                    elapsed = time.time() - model_statuses[task_name][model]["start_time"]
-                    model_statuses[task_name][model]["duration"] = format_duration(elapsed)
+                    elapsed = (
+                        time.time() - model_statuses[task_name][model]["start_time"]
+                    )
+                    model_statuses[task_name][model]["duration"] = format_duration(
+                        elapsed
+                    )
 
         live.update(create_status_table(model_statuses))
         await asyncio.sleep(0.5)
@@ -456,7 +479,9 @@ def generate_task_summary(run_dir, task_name, task_model_statuses, logger):
     run_path = run_dir.name
 
     logger.info(
-        "Generating task summary", task_name=task_name, total_models=len(task_model_statuses)
+        "Generating task summary",
+        task_name=task_name,
+        total_models=len(task_model_statuses),
     )
 
     summary_lines = [
@@ -470,11 +495,21 @@ def generate_task_summary(run_dir, task_name, task_model_statuses, logger):
     ]
 
     total_models = len(task_model_statuses)
-    successful = sum(1 for s in task_model_statuses.values() if s["result"] == "✅ Pass")
-    failed_exec = sum(1 for s in task_model_statuses.values() if s["result"] == "❌ Exec")
-    failed_test = sum(1 for s in task_model_statuses.values() if s["result"] == "❌ Test")
-    failed_error = sum(1 for s in task_model_statuses.values() if s["result"] == "❌ Error")
-    total_session_size = sum(float(s["session_size"]) for s in task_model_statuses.values())
+    successful = sum(
+        1 for s in task_model_statuses.values() if s["result"] == "✅ Pass"
+    )
+    failed_exec = sum(
+        1 for s in task_model_statuses.values() if s["result"] == "❌ Exec"
+    )
+    failed_test = sum(
+        1 for s in task_model_statuses.values() if s["result"] == "❌ Test"
+    )
+    failed_error = sum(
+        1 for s in task_model_statuses.values() if s["result"] == "❌ Error"
+    )
+    total_session_size = sum(
+        float(s["session_size"]) for s in task_model_statuses.values()
+    )
 
     for model, status in task_model_statuses.items():
         result_icon = "✅" if status["result"] == "✅ Pass" else "❌"
@@ -660,12 +695,15 @@ def generate_run_metadata(run_dir, task_names, models, model_statuses, logger):
     """Generate run-level metadata JSON file."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    logger.info("Generating run metadata", total_tasks=len(task_names), total_models=len(models))
+    logger.info(
+        "Generating run metadata", total_tasks=len(task_names), total_models=len(models)
+    )
 
     # Aggregate statistics across all tasks
     total_executions = sum(len(task_data) for task_data in model_statuses.values())
     total_passed = sum(
-        1 for task_data in model_statuses.values()
+        1
+        for task_data in model_statuses.values()
         for status in task_data.values()
         if status["result"] == "✅ Pass"
     )
@@ -680,19 +718,25 @@ def generate_run_metadata(run_dir, task_names, models, model_statuses, logger):
         "total_executions": total_executions,
         "total_passed": total_passed,
         "total_failed": total_executions - total_passed,
-        "success_rate": f"{total_passed / total_executions * 100:.1f}%" if total_executions > 0 else "0.0%",
-        "task_results": {}
+        "success_rate": f"{total_passed / total_executions * 100:.1f}%"
+        if total_executions > 0
+        else "0.0%",
+        "task_results": {},
     }
 
     # Add per-task statistics
     for task_name, task_data in model_statuses.items():
         task_total = len(task_data)
-        task_passed = sum(1 for status in task_data.values() if status["result"] == "✅ Pass")
+        task_passed = sum(
+            1 for status in task_data.values() if status["result"] == "✅ Pass"
+        )
         run_metadata["task_results"][task_name] = {
             "total_models": task_total,
             "passed": task_passed,
             "failed": task_total - task_passed,
-            "success_rate": f"{task_passed / task_total * 100:.1f}%" if task_total > 0 else "0.0%"
+            "success_rate": f"{task_passed / task_total * 100:.1f}%"
+            if task_total > 0
+            else "0.0%",
         }
 
     metadata_path = run_dir / "run_metadata.json"
@@ -705,7 +749,11 @@ def generate_run_metadata(run_dir, task_names, models, model_statuses, logger):
 async def main():
     parser = argparse.ArgumentParser(description="Evaluate LLM models on tasks")
     parser.add_argument("--model", required=True, help="Comma-separated list of models")
-    parser.add_argument("--task", required=False, help="Comma-separated list of task directory paths (default: all tasks in tasks/ directory)")
+    parser.add_argument(
+        "--task",
+        required=False,
+        help="Comma-separated list of task directory paths (default: all tasks in tasks/ directory)",
+    )
     parser.add_argument(
         "--verbose",
         action="store_true",
@@ -740,16 +788,20 @@ async def main():
             sys.exit(1)
 
         # Find all subdirectories in tasks/ that contain task.md
-        task_paths = sorted([
-            d for d in tasks_dir.iterdir()
-            if d.is_dir() and (d / "task.md").exists()
-        ])
+        task_paths = sorted(
+            [d for d in tasks_dir.iterdir() if d.is_dir() and (d / "task.md").exists()]
+        )
 
         if not task_paths:
-            logger.error("No tasks found in tasks/ directory (looking for directories with task.md)")
+            logger.error(
+                "No tasks found in tasks/ directory (looking for directories with task.md)"
+            )
             sys.exit(1)
 
-        logger.info(f"Auto-discovered {len(task_paths)} tasks", tasks=[d.name for d in task_paths])
+        logger.info(
+            f"Auto-discovered {len(task_paths)} tasks",
+            tasks=[d.name for d in task_paths],
+        )
 
     # Validate all task directories
     for task_dir in task_paths:
@@ -848,7 +900,7 @@ async def main():
     logger.info(
         "Run completed",
         run_dir=str(run_dir),
-        metadata_path=str(run_dir / "run_metadata.json")
+        metadata_path=str(run_dir / "run_metadata.json"),
     )
 
 
