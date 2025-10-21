@@ -39,6 +39,7 @@ CUBBIX_COMMAND_TEMPLATE = [
     "--run",
     """
     if [ -f install.sh ]; then bash install.sh; fi;
+    opencode models;
     cd input && opencode run --print-logs < ../task.md
     """,
     ".",
