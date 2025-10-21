@@ -99,9 +99,6 @@
     const cells = row.querySelectorAll('td');
     if (cells.length === 0) return false;
 
-    // Extract data from cells based on table structure (no task column anymore)
-    const dateCell = cells[0]?.textContent || '';
-
     // Get model names from data attributes on model tags
     const modelTags = row.querySelectorAll('.model-tag');
     const allModels = Array.from(modelTags).map(tag => tag.getAttribute('data-model-full') || '').join(' ').toLowerCase();
@@ -114,31 +111,20 @@
         return false;
       }
 
-      // Filter OK and Failed models columns to only show the filtered model
-      const okModelsCell = cells[5]; // OK Models column
-      const failedModelsCell = cells[6]; // Failed Models column
-
-      if (okModelsCell) {
-        filterModelTags(okModelsCell, filterLower);
-      }
-      if (failedModelsCell) {
-        filterModelTags(failedModelsCell, filterLower);
+      // Filter model tags in the Models Score column (cell index 2)
+      const modelsScoreCell = cells[2]; // Models Score column
+      if (modelsScoreCell) {
+        filterModelTags(modelsScoreCell, filterLower);
       }
     } else {
       // Reset model tag visibility if no filter
-      const okModelsCell = cells[5];
-      const failedModelsCell = cells[6];
-
-      if (okModelsCell) {
-        resetModelTags(okModelsCell);
-      }
-      if (failedModelsCell) {
-        resetModelTags(failedModelsCell);
+      const modelsScoreCell = cells[2];
+      if (modelsScoreCell) {
+        resetModelTags(modelsScoreCell);
       }
     }
 
-    // Apply task filter (still exists in select)
-    // Task is now part of the run name, not a separate column
+    // Apply task filter (if it exists in select)
     if (state.filters.task && !rowText.includes(state.filters.task)) {
       return false;
     }

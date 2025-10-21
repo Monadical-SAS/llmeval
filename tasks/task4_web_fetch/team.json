@@ -1,1 +1,24 @@
-{"team": ["Max", "Nick", "Ana", "Juan Diego", "Milton", "Jose", "Tess", "Juan David", "Kevin", "David", "Michał", "Joyce", "Igor", "Sergey", "Kan", "Sebastian", "Jordan", "Mathieu", "Carly", "Arman", "Nikita"]}
+{
+  "team": [
+    "Max",
+    "Nick",
+    "Ana",
+    "Juan Diego",
+    "Milton",
+    "Jose",
+    "Tess",
+    "Juan David",
+    "Kevin",
+    "David",
+    "Michał",
+    "Joyce",
+    "Igor",
+    "Sergey",
+    "Kan",
+    "Sebastian",
+    "Jordan",
+    "Mathieu",
+    "Arman",
+    "Nikita"
+  ]
+}

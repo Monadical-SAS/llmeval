@@ -30,9 +30,9 @@ import sys
 
 # Expected team members (first names from Monadical's team page)
 expected_team = {
-    "Max", "Nick", "Ana", "Juan Diego", "Milton", "Jose", "Tess", 
-    "Juan David", "Kevin", "David", "Michał", "Joyce", "Igor", 
-    "Sergey", "Kan", "Sebastian", "Jordan", "Mathieu", "Carly", 
+    "Max", "Nick", "Ana", "Juan Diego", "Milton", "Jose", "Tess",
+    "Juan David", "Kevin", "David", "Michał", "Joyce", "Igor",
+    "Sergey", "Kan", "Sebastian", "Jordan", "Mathieu",
     "Arman", "Nikita"
 }
 

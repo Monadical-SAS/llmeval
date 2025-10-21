@@ -9,8 +9,8 @@
 /* ===== CSS Variables ===== */
 :root {
   /* Colors */
-  --color-primary: #2563eb;
-  --color-primary-dark: #1e40af;
+  --color-primary: #0087B4;
+  --color-primary-dark: #00668a;
   --color-success: #10b981;
   --color-error: #ef4444;
   --color-warning: #f59e0b;
@@ -291,7 +291,7 @@ header .container {
 .filter-group select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 135, 180, 0.1);
 }
 
 .filter-actions {
@@ -405,6 +405,21 @@ th {
   font-size: 0.875rem;
 }
 
+/* Run overview page - rotate task column headers */
+.run-page th.task-header {
+  height: 150px;
+  white-space: nowrap;
+  vertical-align: bottom;
+  padding: 0.5rem;
+}
+
+.run-page th.task-header > span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  display: inline-block;
+  font-size: 0.875rem;
+}
+
 /* Run page - fixed width columns */
 .run-page th:nth-child(1),
 .run-page td:nth-child(1) {
@@ -427,19 +442,58 @@ th {
   max-width: 100px;
 }
 
-/* Test columns - fixed width */
+/* Test columns and Task columns - fixed narrow width */
 .run-page th.test-header,
-.run-page td.test-cell {
+.run-page td.test-cell,
+.overview-page th.task-header {
   width: 60px;
   min-width: 60px;
   max-width: 60px;
 }
 
-/* Model column - flexible width */
-.run-page th:nth-child(2),
-.run-page td:nth-child(2) {
+/* Task detail page - Model column is 2nd, flexible width */
+.run-page:not(.overview-page) th:nth-child(2),
+.run-page:not(.overview-page) td:nth-child(2) {
   width: auto;
   min-width: 200px;
+}
+
+/* Run overview page - Model column is 1st, flexible width */
+.overview-page th:nth-child(1),
+.overview-page td:nth-child(1) {
+  width: auto !important;
+  min-width: 200px !important;
+  max-width: none !important;
+}
+
+/* Run overview page - Overall Score column is 2nd, fixed width */
+.overview-page th:nth-child(2),
+.overview-page td:nth-child(2) {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+}
+
+/* Root page - Models Score column (3rd column) is flexible */
+body:not(.run-page) td:nth-child(3),
+body:not(.run-page) th:nth-child(3) {
+  width: auto;
+  min-width: 300px;
+}
+
+/* Root page - Date/Time column (1st) and Overall Score column (2nd) are fixed */
+body:not(.run-page) td:nth-child(1),
+body:not(.run-page) th:nth-child(1) {
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
+}
+
+body:not(.run-page) td:nth-child(2),
+body:not(.run-page) th:nth-child(2) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 
 th.sortable {
@@ -590,6 +644,16 @@ th.rotated > div > span {
 
 .model-tag.success:hover {
   background-color: rgba(16, 185, 129, 0.1);
+}
+
+.model-tag.warning {
+  background-color: rgba(245, 158, 11, 0.05);
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.model-tag.warning:hover {
+  background-color: rgba(245, 158, 11, 0.1);
 }
 
 .model-tag.error {
@@ -775,6 +839,49 @@ footer a:hover {
 .footer-copy {
   color: var(--color-text-muted);
   font-size: var(--font-size-small);
+}
+
+/* ===== Task Cell Colors ===== */
+.task-cell-green {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.task-cell-green:hover {
+  background-color: rgba(16, 185, 129, 0.15);
+}
+
+.task-cell-orange {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.task-cell-orange:hover {
+  background-color: rgba(245, 158, 11, 0.15);
+}
+
+.task-cell-red {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.task-cell-red:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+/* Make task cells clickable */
+.task-cell-green a,
+.task-cell-orange a,
+.task-cell-red a {
+  display: block;
+  padding: 0.75rem;
+  color: inherit;
+  text-decoration: none;
+  width: 100%;
+  height: 100%;
+}
+
+.task-cell-green a:hover,
+.task-cell-orange a:hover,
+.task-cell-red a:hover {
+  text-decoration: none;
 }
 
 /* ===== Utility Classes ===== */

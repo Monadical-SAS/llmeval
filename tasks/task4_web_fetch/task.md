@@ -1,1 +1,1 @@
-Use the fetch tool to answer the following question: list the first name of everyone who works for Monadical, according to the company's team page. Save the results in a local file called team.json with the format {'team': ['name1', 'name2', ...]}.
+Use the fetch tool to answer the following question: list the first name of everyone who works for Monadical, according to the company's team page. Save the results in a local file called team.json with the format `{'team': ['name1', 'name2']}`.

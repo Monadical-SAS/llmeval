@@ -102,48 +102,58 @@ fi
 MODEL_LIST="${EVAL_MODELS}"
 log "Models: ${MODEL_LIST}"
 
-# Step 4: Read tasks from environment variable
+# Step 4: Read tasks from environment variable (optional - auto-discovers if not set)
 if [[ -z "${EVAL_TASKS:-}" ]]; then
-    log "ERROR: EVAL_TASKS environment variable not set"
-    exit 1
-fi
-
-# Split tasks by comma into array
-IFS=',' read -ra TASKS <<< "${EVAL_TASKS}"
-log "Loaded ${#TASKS[@]} tasks from EVAL_TASKS"
-
-# Track overall success/failure
-FAILED_TASKS=0
-TOTAL_TASKS=${#TASKS[@]}
-
-# Step 5: Run evaluations for each task
-for TASK in "${TASKS[@]}"; do
-    log "--- Processing task: ${TASK} ---"
-
-    # Verify task directory exists
-    if [[ ! -d "${TASK}" ]]; then
-        log "WARNING: Task directory not found: ${TASK}, skipping..."
-        ((FAILED_TASKS++))
-        continue
-    fi
-
-    # Run llmeval.py for this task with all configured models
-    log "Running evaluation for task: ${TASK}"
-    if uv run python llmeval.py --model "${MODEL_LIST}" --task "${TASK}" >> "${LOG_FILE}" 2>&1; then
-        log "✓ Successfully completed evaluation for ${TASK}"
+    log "EVAL_TASKS not set - using auto-discovery (all tasks in tasks/ directory)"
+    # Run llmeval.py once with auto-discovery (no --task argument)
+    log "Running evaluation for all tasks with auto-discovery..."
+    if uv run python llmeval.py --model "${MODEL_LIST}" >> "${LOG_FILE}" 2>&1; then
+        log "✓ Successfully completed evaluation for all tasks"
+        FAILED_TASKS=0
+        TOTAL_TASKS=1
     else
-        log "ERROR: Evaluation failed for task: ${TASK}"
-        ((FAILED_TASKS++))
-        # Continue with next task instead of exiting
-        continue
+        log "ERROR: Evaluation failed for auto-discovered tasks"
+        FAILED_TASKS=1
+        TOTAL_TASKS=1
     fi
-done
+else
+    # Split tasks by comma into array
+    IFS=',' read -ra TASKS <<< "${EVAL_TASKS}"
+    log "Loaded ${#TASKS[@]} tasks from EVAL_TASKS"
 
-# Report task completion status
-log "=== Task Completion Summary ==="
-log "Total tasks: ${TOTAL_TASKS}"
-log "Successful: $((TOTAL_TASKS - FAILED_TASKS))"
-log "Failed: ${FAILED_TASKS}"
+    # Track overall success/failure
+    FAILED_TASKS=0
+    TOTAL_TASKS=${#TASKS[@]}
+
+    # Step 5: Run evaluations for each task
+    for TASK in "${TASKS[@]}"; do
+        log "--- Processing task: ${TASK} ---"
+
+        # Verify task directory exists
+        if [[ ! -d "${TASK}" ]]; then
+            log "WARNING: Task directory not found: ${TASK}, skipping..."
+            ((FAILED_TASKS++))
+            continue
+        fi
+
+        # Run llmeval.py for this task with all configured models
+        log "Running evaluation for task: ${TASK}"
+        if uv run python llmeval.py --model "${MODEL_LIST}" --task "${TASK}" >> "${LOG_FILE}" 2>&1; then
+            log "✓ Successfully completed evaluation for ${TASK}"
+        else
+            log "ERROR: Evaluation failed for task: ${TASK}"
+            ((FAILED_TASKS++))
+            # Continue with next task instead of exiting
+            continue
+        fi
+    done
+
+    # Report task completion status
+    log "=== Task Completion Summary ==="
+    log "Total tasks: ${TOTAL_TASKS}"
+    log "Successful: $((TOTAL_TASKS - FAILED_TASKS))"
+    log "Failed: ${FAILED_TASKS}"
+fi
 
 # Step 6: Generate static website from evaluation results
 log "Generating static website..."
