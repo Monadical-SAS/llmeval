@@ -233,7 +233,7 @@ def _load_model_result(result_file, task_dir_name=None):
         return None
 
 
-def generate_task_detail_page(run_dir, task_name, task_data, force=False):
+def generate_task_detail_page(run_dir, task_name, task_data, static_source, force=False):
     """
     Generate the task detail page (test-level view) for a specific task.
 
@@ -241,6 +241,7 @@ def generate_task_detail_page(run_dir, task_name, task_data, force=False):
         run_dir: Path to run directory
         task_name: Name of the task
         task_data: Task data dict with 'models' key
+        static_source: Path to static source directory (for cache busting)
         force: If True, regenerate even if index.html exists
 
     Returns:
@@ -282,6 +283,10 @@ def generate_task_detail_page(run_dir, task_name, task_data, force=False):
     parent_link = f"{path_prefix}/index.html" if path_prefix == ".." else "../index.html"
     static_path = f"{path_prefix}/../static" if path_prefix == ".." else "../static"
 
+    # Get cache-busting versions
+    css_version = get_static_file_version(static_source, "style.css")
+    js_version = get_static_file_version(static_source, "main.js")
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -289,7 +294,7 @@ def generate_task_detail_page(run_dir, task_name, task_data, force=False):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="LLM Evaluation - {breadcrumb}">
     <title>{breadcrumb} - LLM Evaluation</title>
-    <link rel="stylesheet" href="{static_path}/style.css">
+    <link rel="stylesheet" href="{static_path}/style.css?v={css_version}">
 </head>
 <body class="run-page">
     <header>
@@ -430,7 +435,7 @@ def generate_task_detail_page(run_dir, task_name, task_data, force=False):
         </div>
     </footer>
 
-    <script src="{static_path}/main.js"></script>
+    <script src="{static_path}/main.js?v={js_version}"></script>
 </body>
 </html>
 """
@@ -442,13 +447,14 @@ def generate_task_detail_page(run_dir, task_name, task_data, force=False):
     return True
 
 
-def generate_run_overview_page(run_dir, run_data, force=False):
+def generate_run_overview_page(run_dir, run_data, static_source, force=False):
     """
     Generate the run overview page (model x task grid) for a multi-task run.
 
     Args:
         run_dir: Path to run directory
         run_data: Run data dict from load_run_data()
+        static_source: Path to static source directory (for cache busting)
         force: If True, regenerate even if index.html exists
 
     Returns:
@@ -498,6 +504,10 @@ def generate_run_overview_page(run_dir, run_data, force=False):
 
     models_sorted = sorted(all_models.keys(), key=calc_model_score, reverse=True)
 
+    # Get cache-busting versions
+    css_version = get_static_file_version(static_source, "style.css")
+    js_version = get_static_file_version(static_source, "main.js")
+
     # Generate HTML
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -506,7 +516,7 @@ def generate_run_overview_page(run_dir, run_data, force=False):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="LLM Evaluation - {run_id}">
     <title>{run_id} - LLM Evaluation</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../static/style.css?v={css_version}">
 </head>
 <body class="run-page overview-page">
     <header>
@@ -602,7 +612,7 @@ def generate_run_overview_page(run_dir, run_data, force=False):
         </div>
     </footer>
 
-    <script src="../static/main.js"></script>
+    <script src="../static/main.js?v={js_version}"></script>
 </body>
 </html>
 """
@@ -614,13 +624,14 @@ def generate_run_overview_page(run_dir, run_data, force=False):
     return True
 
 
-def generate_root_index_page(runs_dir, all_runs):
+def generate_root_index_page(runs_dir, all_runs, static_source):
     """
     Generate the root index.html with overview of all runs.
 
     Args:
         runs_dir: Path to runs directory
         all_runs: List of run data dicts, sorted by date descending
+        static_source: Path to static source directory (for cache busting)
     """
     # Limit to last 50 runs
     recent_runs = all_runs[:50]
@@ -636,6 +647,10 @@ def generate_root_index_page(runs_dir, all_runs):
     # Sort for consistent display
     sorted_models = sorted(all_models)
 
+    # Get cache-busting versions
+    css_version = get_static_file_version(static_source, "style.css")
+    js_version = get_static_file_version(static_source, "main.js")
+
     # Generate HTML
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -644,7 +659,7 @@ def generate_root_index_page(runs_dir, all_runs):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="LLM Evaluation - Automated LLM Model Evaluation">
     <title>LLM Evaluation</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="static/style.css?v={css_version}">
 </head>
 <body>
     <header>
@@ -768,7 +783,7 @@ def generate_root_index_page(runs_dir, all_runs):
         html += '                                </td>\n'
         html += '                            </tr>\n'
 
-    html += """                        </tbody>
+    html += f"""                        </tbody>
                     </table>
                 </div>
         </div>
@@ -784,7 +799,7 @@ def generate_root_index_page(runs_dir, all_runs):
         </div>
     </footer>
 
-    <script src="static/main.js"></script>
+    <script src="static/main.js?v={js_version}"></script>
 </body>
 </html>
 """
@@ -795,6 +810,24 @@ def generate_root_index_page(runs_dir, all_runs):
         f.write(html)
 
     print(f"Generated root index: {index_path}")
+
+
+def get_static_file_version(static_source, filename):
+    """
+    Get cache-busting version string for a static file based on modification time.
+
+    Args:
+        static_source: Path to source static directory
+        filename: Name of the file
+
+    Returns:
+        str: Version string (timestamp of last modification)
+    """
+    file_path = static_source / filename
+    if file_path.exists():
+        mtime = int(file_path.stat().st_mtime)
+        return str(mtime)
+    return "1"
 
 
 def copy_static_assets(static_source, runs_dir):
@@ -911,11 +944,11 @@ def main():
 
             if is_multi_task:
                 # Generate run overview page (model x task grid)
-                was_overview_generated = generate_run_overview_page(run_dir, run_data, force=args.force)
+                was_overview_generated = generate_run_overview_page(run_dir, run_data, static_source, force=args.force)
 
                 # Generate task detail pages
                 for task_name, task_data in run_data['tasks'].items():
-                    was_task_generated = generate_task_detail_page(run_dir, task_name, task_data, force=args.force)
+                    was_task_generated = generate_task_detail_page(run_dir, task_name, task_data, static_source, force=args.force)
                     if was_task_generated:
                         print(f"  ✓ Generated {task_name}/index.html ({len(task_data['models'])} models)")
                         generated_count += 1
@@ -932,7 +965,7 @@ def main():
                 task_name = list(run_data['tasks'].keys())[0]
                 task_data = run_data['tasks'][task_name]
 
-                was_generated = generate_task_detail_page(run_dir, task_name, task_data, force=args.force)
+                was_generated = generate_task_detail_page(run_dir, task_name, task_data, static_source, force=args.force)
 
                 if was_generated:
                     print(f"  ✓ Generated index.html ({len(task_data['models'])} models)")
@@ -952,7 +985,7 @@ def main():
 
     # Generate root index page
     print("\nGenerating root index page...")
-    generate_root_index_page(runs_dir, all_runs)
+    generate_root_index_page(runs_dir, all_runs, static_source)
 
     # Copy static assets
     print("\nCopying static assets...")

@@ -26,12 +26,12 @@ eval.monadical.io {
 	}
 
 	# Caching headers for static assets (CSS, JS)
-	# Cache for 1 week to improve performance
+	# Cache for 1 year since we use version query strings for cache busting
 	@static {
 		path *.css *.js
 	}
 	header @static {
-		Cache-Control "public, max-age=604800, immutable"
+		Cache-Control "public, max-age=31536000, immutable"
 	}
 
 	# Shorter cache for HTML files (1 hour)
