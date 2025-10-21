@@ -779,7 +779,7 @@ def generate_root_index_page(runs_dir, all_runs, static_source):
             else:
                 status_class = "error"
 
-            html += f'                                        <span class="model-tag {status_class}" title="{escape_html(full_name)}" data-model-full="{escape_html(full_name)}">{escape_html(display_name)} {passed}/{total}</span>\n'
+            html += f'                                        <span class="model-tag {status_class}" title="{escape_html(full_name)}" data-model-full="{escape_html(full_name)}"><span class="model-name">{escape_html(display_name)}</span><span class="model-score">{passed}/{total}</span></span>\n'
 
         html += '                                    </div>\n'
         html += '                                </td>\n'

@@ -616,16 +616,16 @@ th.rotated > div > span {
 .model-tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.5rem;
+  padding: 0;
   background-color: var(--color-bg-alt);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-button);
   font-size: 0.75rem;
-  color: var(--color-text-secondary);
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .model-tag:hover {
@@ -633,34 +633,59 @@ th.rotated > div > span {
   box-shadow: var(--box-shadow-hover);
 }
 
+.model-name {
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-alt);
+}
+
+.model-divider {
+  color: var(--color-text-muted);
+  padding: 0 0.25rem;
+}
+
+.model-score {
+  padding: 0.25rem 0.5rem;
+  font-weight: 500;
+}
+
 .model-tag.success {
-  background-color: rgba(16, 185, 129, 0.05);
   border-color: var(--color-success);
+}
+
+.model-tag.success .model-score {
+  background-color: rgba(16, 185, 129, 0.1);
   color: var(--color-success);
 }
 
-.model-tag.success:hover {
-  background-color: rgba(16, 185, 129, 0.1);
+.model-tag.success:hover .model-score {
+  background-color: rgba(16, 185, 129, 0.15);
 }
 
 .model-tag.warning {
-  background-color: rgba(245, 158, 11, 0.05);
   border-color: var(--color-warning);
+}
+
+.model-tag.warning .model-score {
+  background-color: rgba(245, 158, 11, 0.1);
   color: var(--color-warning);
 }
 
-.model-tag.warning:hover {
-  background-color: rgba(245, 158, 11, 0.1);
+.model-tag.warning:hover .model-score {
+  background-color: rgba(245, 158, 11, 0.15);
 }
 
 .model-tag.error {
-  background-color: rgba(239, 68, 68, 0.05);
   border-color: var(--color-error);
+}
+
+.model-tag.error .model-score {
+  background-color: rgba(239, 68, 68, 0.1);
   color: var(--color-error);
 }
 
-.model-tag.error:hover {
-  background-color: rgba(239, 68, 68, 0.1);
+.model-tag.error:hover .model-score {
+  background-color: rgba(239, 68, 68, 0.15);
 }
 
 /* Tooltip for full model name */
