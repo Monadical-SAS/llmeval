@@ -111,14 +111,14 @@
         return false;
       }
 
-      // Filter model tags in the Models Score column (cell index 2)
-      const modelsScoreCell = cells[2]; // Models Score column
+      // Filter model tags in the Models Score column (cell index 1)
+      const modelsScoreCell = cells[1]; // Models Score column
       if (modelsScoreCell) {
         filterModelTags(modelsScoreCell, filterLower);
       }
     } else {
       // Reset model tag visibility if no filter
-      const modelsScoreCell = cells[2];
+      const modelsScoreCell = cells[1];
       if (modelsScoreCell) {
         resetModelTags(modelsScoreCell);
       }
