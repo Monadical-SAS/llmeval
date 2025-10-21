@@ -34,10 +34,21 @@ eval.monadical.io {
 		Cache-Control "public, max-age=31536000, immutable"
 	}
 
-	# Shorter cache for HTML files (1 hour)
+	# Conditional caching for index.html files
+	# Browser must revalidate with server, but only downloads if file changed
+	# Caddy automatically sends ETag and Last-Modified headers for efficient comparison
+	@index {
+		path */index.html /index.html
+	}
+	header @index {
+		Cache-Control "no-cache, must-revalidate"
+	}
+
+	# Shorter cache for other HTML files (1 hour)
 	# Allows more frequent updates to be visible
 	@html {
 		path *.html
+		not path */index.html /index.html
 	}
 	header @html {
 		Cache-Control "public, max-age=3600, must-revalidate"
