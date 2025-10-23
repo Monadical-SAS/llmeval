@@ -1,0 +1,16 @@
+2024-01-15 08:23:45 INFO [192.168.1.100] User login successful - user_id: 12345
+2024-01-15 08:24:12 WARNING [192.168.1.100] High memory usage detected: 85%
+2024-01-15 08:25:33 ERROR [192.168.1.101] Database connection failed: timeout after 30s
+2024-01-15 08:26:01 INFO [10.0.0.45] API request processed - endpoint: /api/users
+2024-01-15 08:27:15 ERROR [192.168.1.102] Failed to process payment: invalid card number
+2024-01-15 08:28:42 WARNING [192.168.1.100] Slow query detected: SELECT * FROM users - 5.2s
+2024-01-15 08:29:30 ERROR [192.168.1.101] Database connection failed: timeout after 30s
+2024-01-15 08:30:11 INFO [10.0.0.45] Cache hit rate: 92%
+2024-01-15 08:31:05 ERROR [192.168.1.103] File not found: /var/log/app/archive.log
+2024-01-15 08:32:28 WARNING [192.168.1.104] Disk space running low: 15% remaining
+2024-01-15 08:33:47 ERROR [192.168.1.101] Database connection failed: timeout after 30s
+2024-01-15 08:34:19 INFO [10.0.0.46] Backup completed successfully
+2024-01-15 08:35:52 ERROR [192.168.1.105] Authentication failed: invalid token
+2024-01-15 08:36:33 WARNING [192.168.1.100] Rate limit approaching: 95% of quota used
+2024-01-15 08:37:14 ERROR [192.168.1.102] Failed to send email notification: SMTP connection refused
+2024-01-15 08:38:05 INFO [10.0.0.45] Health check passed
