@@ -54,7 +54,7 @@ def calculate_task_pass_rate(task_models):
     if not task_models:
         return 0.0
 
-    passed_count = sum(1 for m in task_models if m.get('passed', False))
+    passed_count = sum(1 for m in task_models if m.get("passed", False))
     return passed_count / len(task_models)
 
 
@@ -89,20 +89,22 @@ def generate_model_completion_bar(task_models):
     html = '<div class="model-list">'
 
     # Sort models: passed first, then failed
-    sorted_models = sorted(task_models, key=lambda m: (not m.get('passed', False), m.get('model', '')))
+    sorted_models = sorted(
+        task_models, key=lambda m: (not m.get("passed", False), m.get("model", ""))
+    )
 
     # Limit display to first 5 models
     for model in sorted_models[:5]:
         display_name, full_name = strip_model_prefix(model.get("model", "Unknown"))
-        status_class = "success" if model.get('passed', False) else "error"
-        status_icon = "✓" if model.get('passed', False) else "✗"
+        status_class = "success" if model.get("passed", False) else "error"
+        status_icon = "✓" if model.get("passed", False) else "✗"
 
         html += f'<span class="model-tag {status_class}" title="{escape_html(full_name)}">{escape_html(display_name)} {status_icon}</span>'
 
     if len(sorted_models) > 5:
         html += f'<span class="model-tag">+{len(sorted_models) - 5} more</span>'
 
-    html += '</div>'
+    html += "</div>"
     return html
 
 
@@ -114,7 +116,7 @@ def extract_task_name(run_dir, models):
     # Try to get from result.json files (preferred)
     if models:
         for model in models:
-            task_name = model.get('task_name')
+            task_name = model.get("task_name")
             if task_name:
                 return task_name
 
@@ -153,7 +155,11 @@ def load_run_data(run_dir):
 
     # Check for new structure (task subdirectories)
     # Note: Task directories can start with 'task' or 'test' (e.g., test_multiple_tests)
-    task_dirs = [d for d in run_dir.iterdir() if d.is_dir() and (d.name.startswith('task') or d.name.startswith('test'))]
+    task_dirs = [
+        d
+        for d in run_dir.iterdir()
+        if d.is_dir() and (d.name.startswith("task") or d.name.startswith("test"))
+    ]
 
     tasks = {}
 
@@ -170,7 +176,7 @@ def load_run_data(run_dir):
                     models.append(model_data)
 
             if models:
-                tasks[task_name] = {'models': models}
+                tasks[task_name] = {"models": models}
     else:
         # Old single-task structure: run_*/model/result.json
         models = []
@@ -184,13 +190,9 @@ def load_run_data(run_dir):
         # Extract task name from result.json or infer from directory structure
         task_name = extract_task_name(run_dir, models)
         if models:
-            tasks[task_name] = {'models': models}
+            tasks[task_name] = {"models": models}
 
-    return {
-        'run_id': run_id,
-        'timestamp': timestamp,
-        'tasks': tasks
-    }
+    return {"run_id": run_id, "timestamp": timestamp, "tasks": tasks}
 
 
 def _load_model_result(result_file, task_dir_name=None):
@@ -205,27 +207,27 @@ def _load_model_result(result_file, task_dir_name=None):
         dict: Model data with computed fields, or None if load failed
     """
     try:
-        with open(result_file, 'r') as f:
+        with open(result_file, "r") as f:
             data = json.load(f)
 
         # Calculate global score (percentage of tests passed)
-        test_results = data.get('test_results', [])
+        test_results = data.get("test_results", [])
         if test_results:
-            passed_tests = sum(1 for t in test_results if t.get('passed', False))
+            passed_tests = sum(1 for t in test_results if t.get("passed", False))
             total_tests = len(test_results)
             global_score = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
         else:
             # No tests, consider as 100% if result is Pass
-            global_score = 100 if data.get('result') == '✅ Pass' else 0
+            global_score = 100 if data.get("result") == "✅ Pass" else 0
 
         # Add computed fields
-        data['global_score'] = global_score
-        data['model_dir'] = result_file.parent.name
-        data['passed'] = data.get('result') == '✅ Pass'
+        data["global_score"] = global_score
+        data["model_dir"] = result_file.parent.name
+        data["passed"] = data.get("result") == "✅ Pass"
 
         # Store task_dir_name if present (for new structure)
         if task_dir_name:
-            data['task_dir'] = task_dir_name
+            data["task_dir"] = task_dir_name
 
         return data
     except (json.JSONDecodeError, FileNotFoundError) as e:
@@ -233,7 +235,9 @@ def _load_model_result(result_file, task_dir_name=None):
         return None
 
 
-def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_timestamp=None, force=False):
+def generate_task_detail_page(
+    run_dir, task_name, task_data, static_source, run_timestamp=None, force=False
+):
     """
     Generate the task detail page (test-level view) for a specific task.
 
@@ -265,20 +269,40 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
     if index_path.exists() and not force:
         return False
 
-    models = task_data['models']
+    models = task_data["models"]
+
+    # Load task prompt from workspace
+    task_prompt = ""
+    if models:
+        # Get the first model's workspace to find task.md
+        first_model = models[0]
+        if path_prefix == "..":
+            task_md_path = task_dir / first_model["model_dir"] / "workspace" / "task.md"
+        else:
+            task_md_path = run_dir / first_model["model_dir"] / "workspace" / "task.md"
+
+        if task_md_path.exists():
+            try:
+                with open(task_md_path, "r") as f:
+                    task_prompt = f.read().strip()
+            except Exception as e:
+                print(f"  Warning: Could not read task.md: {e}")
 
     # Sort models by global score descending
-    models_sorted = sorted(models, key=lambda m: m['global_score'], reverse=True)
+    models_sorted = sorted(models, key=lambda m: m["global_score"], reverse=True)
 
     # Calculate statistics
     total_models = len(models_sorted)
-    passed_models = sum(1 for m in models_sorted if m['passed'])
+    passed_models = sum(1 for m in models_sorted if m["passed"])
     success_rate = (passed_models / total_models * 100) if total_models > 0 else 0
 
-    durations = [m.get('duration_seconds', 0) for m in models_sorted]
+    durations = [m.get("duration_seconds", 0) for m in models_sorted]
     min_duration = min(durations) if durations else 0
     max_duration = max(durations) if durations else 0
     avg_duration = sum(durations) / len(durations) if durations else 0
+
+    # Format task prompt for HTML
+    task_prompt_html = escape_html(task_prompt).replace("\n", "<br>")
 
     # Generate HTML
     run_id = run_dir.name
@@ -290,7 +314,9 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
         run_display = run_id
 
     breadcrumb = f"{run_display} / {task_name}" if path_prefix == ".." else run_display
-    parent_link = f"{path_prefix}/index.html" if path_prefix == ".." else "../index.html"
+    parent_link = (
+        f"{path_prefix}/index.html" if path_prefix == ".." else "../index.html"
+    )
     static_path = f"{path_prefix}/../static" if path_prefix == ".." else "../static"
 
     # Get cache-busting versions
@@ -310,8 +336,8 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
     <header>
         <div class="container">
             <div class="header-title">
-                <a href="{'../../index.html' if path_prefix == '..' else '../index.html'}" class="logo-link"><h1>LLM Evaluation</h1></a>
-                <a href="{parent_link}" class="breadcrumb-link"><h2 class="breadcrumb">← {breadcrumb}</h2></a>
+                <a href="{"../../index.html" if path_prefix == ".." else "../index.html"}" class="logo-link"><h1>LLM Evaluation</h1></a>
+                <a href="{parent_link}" class="breadcrumb-link"><h2 class="breadcrumb">← Back to {run_display}</h2></a>
             </div>
             <div class="header-meta">
                 <a href="https://monadical.com" target="_blank" rel="noopener" class="monadical-logo">
@@ -323,16 +349,12 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
 
     <main>
         <div class="container">
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="filter-model">Model</label>
-                    <input type="text" id="filter-model" placeholder="Filter by model...">
-                </div>
-                <div class="filter-actions">
-                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
-                </div>
+            <h2 class="section-title">Task <code>{escape_html(task_name)}</code></h2>
+            <div class="task-prompt">
+                <div class="task-prompt-content">{task_prompt_html}</div>
             </div>
 
+            <h2 class="section-title">Results</h2>
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value">{total_models}</div>
@@ -352,6 +374,17 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
                 </div>
             </div>
 
+            <h2 class="section-title">Details</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-model">Model</label>
+                    <input type="text" id="filter-model" placeholder="Filter by model...">
+                </div>
+                <div class="filter-actions">
+                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -365,9 +398,9 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
     # Collect all unique test names across all models
     all_test_names = set()
     for model in models_sorted:
-        test_results = model.get('test_results', [])
+        test_results = model.get("test_results", [])
         for test in test_results:
-            all_test_names.add(test.get('name', 'unknown'))
+            all_test_names.add(test.get("name", "unknown"))
 
     # Sort test names for consistent ordering
     sorted_test_names = sorted(all_test_names)
@@ -383,16 +416,16 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
 
     # Generate table rows
     for rank, model in enumerate(models_sorted, start=1):
-        test_results = model.get('test_results', [])
+        test_results = model.get("test_results", [])
 
         # Create a mapping of test name to test result
-        test_map = {test.get('name', 'unknown'): test for test in test_results}
+        test_map = {test.get("name", "unknown"): test for test in test_results}
 
-        duration_str = format_duration(model.get('duration_seconds', 0))
-        session_kb = model.get('session_size_kb', 0)
+        duration_str = format_duration(model.get("duration_seconds", 0))
+        session_kb = model.get("session_size_kb", 0)
 
         # Strip model name prefix for display but keep full name for tooltip
-        display_name, full_name = strip_model_prefix(model.get('model', 'Unknown'))
+        display_name, full_name = strip_model_prefix(model.get("model", "Unknown"))
 
         # Adjust paths based on structure and check for session.txt vs error.txt
         if path_prefix == "..":
@@ -409,14 +442,16 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
         error_file = model_dir_path / "error.txt"
 
         if session_file.exists():
-            model_session_link = f'{model["model_dir"]}/session.txt'
+            model_session_link = f"{model['model_dir']}/session.txt"
         elif error_file.exists():
-            model_session_link = f'{model["model_dir"]}/error.txt'
+            model_session_link = f"{model['model_dir']}/error.txt"
         else:
-            model_session_link = f'{model["model_dir"]}/session.txt'  # Fallback to session.txt
+            model_session_link = (
+                f"{model['model_dir']}/session.txt"  # Fallback to session.txt
+            )
 
         html += f"""                            <tr data-model-full="{escape_html(full_name)}">
-                                <td data-sort="{model['global_score']}">{model['global_score']:.1f}%</td>
+                                <td data-sort="{model["global_score"]}">{model["global_score"]:.1f}%</td>
                                 <td><a href="{model_session_link}" title="{escape_html(full_name)}">{escape_html(display_name)}</a></td>
                                 <td>{duration_str}</td>
                                 <td>{session_kb:.1f}</td>
@@ -426,9 +461,9 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
         for test_name in sorted_test_names:
             if test_name in test_map:
                 test = test_map[test_name]
-                passed = test.get('passed', False)
-                output_file = test.get('output_file', '')
-                status_icon = '✅' if passed else '❌'
+                passed = test.get("passed", False)
+                output_file = test.get("output_file", "")
+                status_icon = "✅" if passed else "❌"
 
                 if output_file:
                     html += f'                                <td class="test-cell"><a href="{model_test_prefix}/{output_file}">{status_icon}</a></td>\n'
@@ -437,7 +472,7 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
             else:
                 html += '                                <td class="test-cell">—</td>\n'
 
-        html += '                            </tr>\n'
+        html += "                            </tr>\n"
 
     html += f"""                        </tbody>
                     </table>
@@ -461,7 +496,7 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
 """
 
     # Write the file
-    with open(index_path, 'w') as f:
+    with open(index_path, "w") as f:
         f.write(html)
 
     return True
@@ -486,17 +521,17 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
     if index_path.exists() and not force:
         return False
 
-    tasks = run_data['tasks']
-    run_id = run_data['run_id']
-    run_timestamp = run_data.get('timestamp')
+    tasks = run_data["tasks"]
+    run_id = run_data["run_id"]
+    run_timestamp = run_data.get("timestamp")
 
     # Collect all unique models across all tasks
     all_models = {}  # model_name -> {task_name: model_data}
     task_names_sorted = sorted(tasks.keys())
 
     for task_name, task_data in tasks.items():
-        for model in task_data['models']:
-            model_name = model.get('model', 'Unknown')
+        for model in task_data["models"]:
+            model_name = model.get("model", "Unknown")
             if model_name not in all_models:
                 all_models[model_name] = {}
             all_models[model_name][task_name] = model
@@ -512,15 +547,19 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
         for task_name in task_names_sorted:
             if task_name in task_results:
                 total_combinations += 1
-                if task_results[task_name].get('passed', False):
+                if task_results[task_name].get("passed", False):
                     passed_combinations += 1
 
-    overall_success_rate = (passed_combinations / total_combinations * 100) if total_combinations > 0 else 0
+    overall_success_rate = (
+        (passed_combinations / total_combinations * 100)
+        if total_combinations > 0
+        else 0
+    )
 
     # Sort models by overall score (percentage of tasks passed)
     def calc_model_score(model_name):
         task_results = all_models[model_name]
-        passed = sum(1 for t in task_results.values() if t.get('passed', False))
+        passed = sum(1 for t in task_results.values() if t.get("passed", False))
         return (passed / total_tasks * 100) if total_tasks > 0 else 0
 
     models_sorted = sorted(all_models.keys(), key=calc_model_score, reverse=True)
@@ -550,7 +589,7 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
         <div class="container">
             <div class="header-title">
                 <a href="../index.html" class="logo-link"><h1>LLM Evaluation</h1></a>
-                <a href="../index.html" class="breadcrumb-link"><h2 class="breadcrumb">← {run_display}</h2></a>
+                <a href="../index.html" class="breadcrumb-link"><h2 class="breadcrumb">← Back to main page</h2></a>
             </div>
             <div class="header-meta">
                 <a href="https://monadical.com" target="_blank" rel="noopener" class="monadical-logo">
@@ -562,16 +601,7 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
 
     <main>
         <div class="container">
-            <div class="filters">
-                <div class="filter-group">
-                    <label for="filter-model">Model</label>
-                    <input type="text" id="filter-model" placeholder="Filter by model...">
-                </div>
-                <div class="filter-actions">
-                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
-                </div>
-            </div>
-
+            <h2 class="section-title">{run_display}</h2>
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value">{total_models}</div>
@@ -588,6 +618,17 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
                 <div class="stat-card">
                     <div class="stat-value">{passed_combinations}/{total_combinations}</div>
                     <div class="stat-label">Passed Combinations</div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Details</h2>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-model">Model</label>
+                    <input type="text" id="filter-model" placeholder="Filter by model...">
+                </div>
+                <div class="filter-actions">
+                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
                 </div>
             </div>
 
@@ -623,15 +664,15 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
         for task_name in task_names_sorted:
             if task_name in task_results:
                 model_data = task_results[task_name]
-                passed = model_data.get('passed', False)
-                status_icon = '✅' if passed else '❌'
-                task_link = f'{task_name}/index.html'
+                passed = model_data.get("passed", False)
+                status_icon = "✅" if passed else "❌"
+                task_link = f"{task_name}/index.html"
 
                 html += f'                                <td class="test-cell"><a href="{task_link}">{status_icon}</a></td>\n'
             else:
                 html += '                                <td class="test-cell">—</td>\n'
 
-        html += '                            </tr>\n'
+        html += "                            </tr>\n"
 
     html += """                        </tbody>
                     </table>
@@ -655,7 +696,7 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
 """
 
     # Write the file
-    with open(index_path, 'w') as f:
+    with open(index_path, "w") as f:
         f.write(html)
 
     return True
@@ -677,9 +718,9 @@ def generate_root_index_page(runs_dir, all_runs, static_source):
     all_models = set()
 
     for run in recent_runs:
-        for task_name, task_data in run['tasks'].items():
-            for model in task_data['models']:
-                all_models.add(model.get('model', 'Unknown'))
+        for task_name, task_data in run["tasks"].items():
+            for model in task_data["models"]:
+                all_models.add(model.get("model", "Unknown"))
 
     # Sort for consistent display
     sorted_models = sorted(all_models)
@@ -737,40 +778,28 @@ def generate_root_index_page(runs_dir, all_runs, static_source):
 
     # Generate table rows
     for run in recent_runs:
-        date_str = run['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
-        date_sort = run['timestamp'].isoformat()
+        date_str = run["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+        date_sort = run["timestamp"].isoformat()
 
         # Calculate model scores for this run
         # model_name -> (tasks_passed, total_tasks)
         model_scores = {}
 
-        for task_name, task_data in run['tasks'].items():
-            for model_data in task_data['models']:
-                model_name = model_data.get('model', 'Unknown')
-                passed = model_data.get('passed', False)
+        for task_name, task_data in run["tasks"].items():
+            for model_data in task_data["models"]:
+                model_name = model_data.get("model", "Unknown")
+                passed = model_data.get("passed", False)
 
                 if model_name not in model_scores:
-                    model_scores[model_name] = {'passed': 0, 'total': 0}
+                    model_scores[model_name] = {"passed": 0, "total": 0}
 
-                model_scores[model_name]['total'] += 1
+                model_scores[model_name]["total"] += 1
                 if passed:
-                    model_scores[model_name]['passed'] += 1
+                    model_scores[model_name]["passed"] += 1
 
-        # Determine run link
-        # Check if multi-task run (has task subdirectories)
-        run_path = Path(runs_dir) / run['run_id']
-        # Note: Task directories can start with 'task' or 'test' (e.g., test_multiple_tests)
-        task_dirs = [d for d in run_path.iterdir() if d.is_dir() and (d.name.startswith('task') or d.name.startswith('test'))]
-
-        if len(task_dirs) > 1:
-            # Multi-task run - link to run overview
-            run_link = f"{run['run_id']}/index.html"
-        else:
-            # Single-task run - link directly to task detail
-            if task_dirs:
-                run_link = f"{run['run_id']}/{task_dirs[0].name}/index.html"
-            else:
-                run_link = f"{run['run_id']}/index.html"
+        # Always link to run overview page (run_*/index.html)
+        # This ensures consistent navigation even for single-task runs
+        run_link = f"{run['run_id']}/index.html"
 
         html += f"""                            <tr>
                                 <td data-sort="{date_sort}"><a href="{run_link}" class="date-link">{date_str}</a></td>
@@ -783,14 +812,17 @@ def generate_root_index_page(runs_dir, all_runs, static_source):
         # Sort models: by pass rate (descending), then by name
         sorted_model_items = sorted(
             model_scores.items(),
-            key=lambda x: (x[1]['passed'] / x[1]['total'] if x[1]['total'] > 0 else 0, x[0]),
-            reverse=True
+            key=lambda x: (
+                x[1]["passed"] / x[1]["total"] if x[1]["total"] > 0 else 0,
+                x[0],
+            ),
+            reverse=True,
         )
 
         for model_name, scores in sorted_model_items:
             display_name, full_name = strip_model_prefix(model_name)
-            passed = scores['passed']
-            total = scores['total']
+            passed = scores["passed"]
+            total = scores["total"]
             pass_rate = passed / total if total > 0 else 0
 
             # Determine color class based on pass rate
@@ -803,9 +835,9 @@ def generate_root_index_page(runs_dir, all_runs, static_source):
 
             html += f'                                        <span class="model-tag {status_class}" title="{escape_html(full_name)}" data-model-full="{escape_html(full_name)}"><span class="model-name">{escape_html(display_name)}</span><span class="model-score">{passed}/{total}</span></span>\n'
 
-        html += '                                    </div>\n'
-        html += '                                </td>\n'
-        html += '                            </tr>\n'
+        html += "                                    </div>\n"
+        html += "                                </td>\n"
+        html += "                            </tr>\n"
 
     html += f"""                        </tbody>
                     </table>
@@ -830,7 +862,7 @@ def generate_root_index_page(runs_dir, all_runs, static_source):
 
     # Write the file
     index_path = runs_dir / "index.html"
-    with open(index_path, 'w') as f:
+    with open(index_path, "w") as f:
         f.write(html)
 
     print(f"Generated root index: {index_path}")
@@ -902,12 +934,14 @@ def escape_html(text):
     """Escape HTML special characters."""
     if text is None:
         return ""
-    return (str(text)
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace('"', "&quot;")
-            .replace("'", "&#39;"))
+    return (
+        str(text)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&#39;")
+    )
 
 
 def main():
@@ -917,7 +951,7 @@ def main():
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Force regeneration of all run detail pages (bypass caching)"
+        help="Force regeneration of all run detail pages (bypass caching)",
     )
 
     args = parser.parse_args()
@@ -937,7 +971,9 @@ def main():
         return 1
 
     # Find all run directories
-    run_dirs = sorted([d for d in runs_dir.iterdir() if d.is_dir() and d.name.startswith("run_")])
+    run_dirs = sorted(
+        [d for d in runs_dir.iterdir() if d.is_dir() and d.name.startswith("run_")]
+    )
 
     if not run_dirs:
         print("Warning: No run directories found")
@@ -956,25 +992,36 @@ def main():
         try:
             run_data = load_run_data(run_dir)
 
-            if not run_data['tasks']:
+            if not run_data["tasks"]:
                 print(f"  Warning: No tasks found in {run_dir.name}, skipping")
                 continue
 
             all_runs.append(run_data)
 
             # Determine if this is a multi-task run
-            num_tasks = len(run_data['tasks'])
+            num_tasks = len(run_data["tasks"])
             is_multi_task = num_tasks > 1
 
             if is_multi_task:
                 # Generate run overview page (model x task grid)
-                was_overview_generated = generate_run_overview_page(run_dir, run_data, static_source, force=args.force)
+                was_overview_generated = generate_run_overview_page(
+                    run_dir, run_data, static_source, force=args.force
+                )
 
                 # Generate task detail pages
-                for task_name, task_data in run_data['tasks'].items():
-                    was_task_generated = generate_task_detail_page(run_dir, task_name, task_data, static_source, run_data.get('timestamp'), force=args.force)
+                for task_name, task_data in run_data["tasks"].items():
+                    was_task_generated = generate_task_detail_page(
+                        run_dir,
+                        task_name,
+                        task_data,
+                        static_source,
+                        run_data.get("timestamp"),
+                        force=args.force,
+                    )
                     if was_task_generated:
-                        print(f"  ✓ Generated {task_name}/index.html ({len(task_data['models'])} models)")
+                        print(
+                            f"  ✓ Generated {task_name}/index.html ({len(task_data['models'])} models)"
+                        )
                         generated_count += 1
                     else:
                         print(f"  ⊙ Skipped {task_name}/index.html (cached)")
@@ -985,27 +1032,48 @@ def main():
                 else:
                     print(f"  ⊙ Skipped run overview (cached)")
             else:
-                # Single task run - generate task detail page only (backward compatibility)
-                task_name = list(run_data['tasks'].keys())[0]
-                task_data = run_data['tasks'][task_name]
+                # Single task run - generate both overview and task detail pages
+                # Generate run overview page
+                was_overview_generated = generate_run_overview_page(
+                    run_dir, run_data, static_source, force=args.force
+                )
 
-                was_generated = generate_task_detail_page(run_dir, task_name, task_data, static_source, run_data.get('timestamp'), force=args.force)
+                # Generate task detail page
+                task_name = list(run_data["tasks"].keys())[0]
+                task_data = run_data["tasks"][task_name]
 
-                if was_generated:
-                    print(f"  ✓ Generated index.html ({len(task_data['models'])} models)")
+                was_task_generated = generate_task_detail_page(
+                    run_dir,
+                    task_name,
+                    task_data,
+                    static_source,
+                    run_data.get("timestamp"),
+                    force=args.force,
+                )
+
+                if was_task_generated:
+                    print(
+                        f"  ✓ Generated {task_name}/index.html ({len(task_data['models'])} models)"
+                    )
                     generated_count += 1
                 else:
-                    print(f"  ⊙ Skipped (cached)")
+                    print(f"  ⊙ Skipped {task_name}/index.html (cached)")
                     skipped_count += 1
+
+                if was_overview_generated:
+                    print(f"  ✓ Generated run overview index.html (1 task)")
+                else:
+                    print(f"  ⊙ Skipped run overview (cached)")
 
         except Exception as e:
             print(f"  Error processing {run_dir.name}: {e}")
             import traceback
+
             traceback.print_exc()
             continue
 
     # Sort runs by date descending (most recent first)
-    all_runs.sort(key=lambda r: r['timestamp'], reverse=True)
+    all_runs.sort(key=lambda r: r["timestamp"], reverse=True)
 
     # Generate root index page
     print("\nGenerating root index page...")
@@ -1016,13 +1084,13 @@ def main():
     copy_static_assets(static_source, runs_dir)
 
     # Print summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Summary:")
     print(f"  Total runs processed: {len(all_runs)}")
     print(f"  Detail pages generated: {generated_count}")
     print(f"  Detail pages skipped (cached): {skipped_count}")
     print(f"  Root index: {runs_dir / 'index.html'}")
-    print("="*60)
+    print("=" * 60)
 
     return 0
 

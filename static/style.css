@@ -4,7 +4,7 @@
  */
 
 /* ===== Google Fonts Import ===== */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Source+Code+Pro:wght@400;500;600&display=swap');
 
 /* ===== CSS Variables ===== */
 :root {
@@ -122,7 +122,7 @@ a:hover {
 
 main {
   flex: 1;
-  padding: 2rem 0;
+  padding: 0;
 }
 
 /* ===== Header ===== */
@@ -1036,6 +1036,48 @@ footer a:hover {
   td {
     padding: 0.5rem 0.375rem;
   }
+}
+
+/* ===== Section Titles ===== */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
+
+.section-title code {
+  font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
+  background-color: var(--color-bg-alt);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+/* ===== Task Prompt ===== */
+.task-prompt {
+  margin-bottom: 2rem;
+}
+
+.task-prompt-content {
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-button);
+  padding: 1rem;
+  font-family: 'Source Code Pro', 'Courier New', Courier, monospace;
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 /* ===== Print Styles ===== */
