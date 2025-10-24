@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test that phone numbers are correctly extracted
 
-phone_count=$(jq -r '.phone_numbers | length' extracted_data.json)
+phone_count=$(jq -r '.phone_numbers | length' input/extracted_data.json)
 
 # There are 7 phone numbers in the file
 if [ "$phone_count" -lt "7" ]; then
@@ -10,7 +10,7 @@ if [ "$phone_count" -lt "7" ]; then
 fi
 
 # Check for specific phone formats (allowing some flexibility in extraction)
-phones=$(jq -r '.phone_numbers | join(" ")' extracted_data.json)
+phones=$(jq -r '.phone_numbers | join(" ")' input/extracted_data.json)
 
 if [[ ! "$phones" =~ "555" ]]; then
     echo "FAIL: Phone numbers should contain '555' area code"

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Test that error and warning counts are correct
 
-total_errors=$(jq -r '.total_errors' log_analysis.json)
-total_warnings=$(jq -r '.total_warnings' log_analysis.json)
+total_errors=$(jq -r '.total_errors' input/log_analysis.json)
+total_warnings=$(jq -r '.total_warnings' input/log_analysis.json)
 
 if [ "$total_errors" != "7" ]; then
     echo "FAIL: Expected 7 errors, got $total_errors"

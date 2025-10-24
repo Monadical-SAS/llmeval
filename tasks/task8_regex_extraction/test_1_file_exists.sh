@@ -1,8 +1,8 @@
 #!/bin/bash
 # Test that the output file exists
 
-if [ ! -f "extracted_data.json" ]; then
-    echo "FAIL: extracted_data.json not found"
+if [ ! -f "input/extracted_data.json" ]; then
+    echo "FAIL: extracted_data.json not found in input/ directory"
     exit 1
 fi
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Test that the output file exists
 
-if [ ! -f "log_analysis.json" ]; then
-    echo "FAIL: log_analysis.json not found"
+if [ ! -f "input/log_analysis.json" ]; then
+    echo "FAIL: log_analysis.json not found in input/ directory"
     exit 1
 fi
 
