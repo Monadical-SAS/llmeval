@@ -18,3 +18,5 @@ Generate a JSON file called `log_analysis.json` with the following structure:
 ```
 
 Make sure to handle different log formats gracefully and extract the relevant information accurately.
+
+PS: You are currently working in an automated system and cannot ask any question or have back and forth with an user.

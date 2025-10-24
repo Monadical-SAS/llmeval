@@ -15,3 +15,5 @@ Create a simple calculator script that supports basic operations.
    - Prints "Calculator ready!"
 
 Make sure all functions work correctly.
+
+PS: You are currently working in an automated system and cannot ask any question or have back and forth with an user.

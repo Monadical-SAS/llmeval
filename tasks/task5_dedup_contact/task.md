@@ -53,3 +53,5 @@ Two contacts are duplicates if ANY of the following match:
 - Each duplicate group should list the primary contact and all its duplicates
 - Original count includes all contacts, unique count is after deduplication
 - Duplicates found is the number of duplicate entries (not the number of groups)
+
+PS: You are currently working in an automated system and cannot ask any question or have back and forth with an user.

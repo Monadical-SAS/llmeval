@@ -35,5 +35,6 @@ Generate a JSON file called `extracted_data.json` with the following structure:
 }
 ```
 
-Each array should contain the extracted values in the order they appear in the file. Duplicates should be included if
-they appear multiple times.
+Each array should contain the extracted values in the order they appear in the file. Duplicates should be included if they appear multiple times.
+
+PS: You are currently working in an automated system and cannot ask any question or have back and forth with an user.

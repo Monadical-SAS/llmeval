@@ -21,3 +21,6 @@ Fix the bug in each file so that:
 - `int_overflow.cpp` - Bulk price calculator
 
 Each file is independent. Fix bugs **IN PLACE** (modify the files in `input/`).
+
+
+PS: You are currently working in an automated system and cannot ask any question or have back and forth with an user.
