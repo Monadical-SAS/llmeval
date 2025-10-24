@@ -21,12 +21,107 @@
     },
   };
 
+  // ===== URL Parameter Handling =====
+  function getFiltersFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      model: params.get('model') || '',
+      task: params.get('task') || '',
+      dateStart: params.get('dateStart') || '',
+      dateEnd: params.get('dateEnd') || '',
+      search: params.get('search') || '',
+    };
+  }
+
+  function saveFiltersToURL() {
+    const params = new URLSearchParams();
+
+    // Only add non-empty filter values to URL
+    if (state.filters.model) params.set('model', state.filters.model);
+    if (state.filters.task) params.set('task', state.filters.task);
+    if (state.filters.dateStart) params.set('dateStart', state.filters.dateStart);
+    if (state.filters.dateEnd) params.set('dateEnd', state.filters.dateEnd);
+    if (state.filters.search) params.set('search', state.filters.search);
+
+    // Update URL without reloading page
+    const newURL = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+
+    window.history.pushState({}, '', newURL);
+  }
+
+  function restoreFiltersFromURL() {
+    const urlFilters = getFiltersFromURL();
+
+    // Update state
+    state.filters = urlFilters;
+
+    // Update form elements
+    const modelFilter = document.getElementById('filter-model');
+    const taskFilter = document.getElementById('filter-task');
+    const dateStartFilter = document.getElementById('filter-date-start');
+    const dateEndFilter = document.getElementById('filter-date-end');
+    const searchFilter = document.getElementById('search-input');
+
+    if (modelFilter && urlFilters.model) modelFilter.value = urlFilters.model;
+    if (taskFilter && urlFilters.task) taskFilter.value = urlFilters.task;
+    if (dateStartFilter && urlFilters.dateStart) dateStartFilter.value = urlFilters.dateStart;
+    if (dateEndFilter && urlFilters.dateEnd) dateEndFilter.value = urlFilters.dateEnd;
+    if (searchFilter && urlFilters.search) searchFilter.value = urlFilters.search;
+
+    // Apply filters if any were restored
+    if (urlFilters.model || urlFilters.task || urlFilters.dateStart || urlFilters.dateEnd || urlFilters.search) {
+      applyFilters();
+    }
+  }
+
+  // ===== Link Parameter Preservation =====
+  function preserveFiltersInLinks() {
+    // Add filter parameters to navigation links when clicked
+    const links = document.querySelectorAll('a[href*="index.html"], a.date-link, a.breadcrumb-link, a.logo-link');
+
+    links.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        // Only process internal navigation links (not external, not file downloads)
+        const href = this.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('http') ||
+            href.endsWith('.txt') || href.endsWith('.sh') || href.endsWith('.md')) {
+          return;
+        }
+
+        // Check if there are active filters
+        const hasFilters = state.filters.model || state.filters.task ||
+                          state.filters.dateStart || state.filters.dateEnd ||
+                          state.filters.search;
+
+        if (hasFilters) {
+          e.preventDefault();
+
+          // Build URL with preserved filters
+          const params = new URLSearchParams();
+          if (state.filters.model) params.set('model', state.filters.model);
+          if (state.filters.task) params.set('task', state.filters.task);
+          if (state.filters.dateStart) params.set('dateStart', state.filters.dateStart);
+          if (state.filters.dateEnd) params.set('dateEnd', state.filters.dateEnd);
+          if (state.filters.search) params.set('search', state.filters.search);
+
+          // Navigate with filters
+          const newURL = params.toString() ? `${href}?${params.toString()}` : href;
+          window.location.href = newURL;
+        }
+      });
+    });
+  }
+
   // ===== Initialization =====
   document.addEventListener('DOMContentLoaded', function () {
     initializeFilters();
     initializeSorting();
     initializeSearch();
     initializeModelTags();
+    restoreFiltersFromURL();
+    preserveFiltersInLinks();
   });
 
   // ===== Filter Functions =====
@@ -42,6 +137,7 @@
     if (modelFilter) {
       modelFilter.addEventListener('input', function () {
         state.filters.model = this.value.toLowerCase();
+        saveFiltersToURL();
         applyFilters();
       });
     }
@@ -49,6 +145,7 @@
     if (taskFilter) {
       taskFilter.addEventListener('change', function () {
         state.filters.task = this.value.toLowerCase();
+        saveFiltersToURL();
         applyFilters();
       });
     }
@@ -56,6 +153,7 @@
     if (dateStartFilter) {
       dateStartFilter.addEventListener('change', function () {
         state.filters.dateStart = this.value;
+        saveFiltersToURL();
         applyFilters();
       });
     }
@@ -63,6 +161,7 @@
     if (dateEndFilter) {
       dateEndFilter.addEventListener('change', function () {
         state.filters.dateEnd = this.value;
+        saveFiltersToURL();
         applyFilters();
       });
     }
@@ -99,9 +198,13 @@
     const cells = row.querySelectorAll('td');
     if (cells.length === 0) return false;
 
-    // Get model names from data attributes on model tags
+    // Get model names - check both row attribute and model tags
+    const rowModelAttr = row.getAttribute('data-model-full') || '';
     const modelTags = row.querySelectorAll('.model-tag');
-    const allModels = Array.from(modelTags).map(tag => tag.getAttribute('data-model-full') || '').join(' ').toLowerCase();
+    const allModels = rowModelAttr
+      ? rowModelAttr.toLowerCase()
+      : Array.from(modelTags).map(tag => tag.getAttribute('data-model-full') || '').join(' ').toLowerCase();
+
     const rowText = row.textContent.toLowerCase();
 
     // Apply model filter - search in full model names
@@ -111,15 +214,15 @@
         return false;
       }
 
-      // Filter model tags in the Models Score column (cell index 1)
+      // Filter model tags in the Models Score column (cell index 1) if present
       const modelsScoreCell = cells[1]; // Models Score column
-      if (modelsScoreCell) {
+      if (modelsScoreCell && modelTags.length > 0) {
         filterModelTags(modelsScoreCell, filterLower);
       }
     } else {
       // Reset model tag visibility if no filter
       const modelsScoreCell = cells[1];
-      if (modelsScoreCell) {
+      if (modelsScoreCell && modelTags.length > 0) {
         resetModelTags(modelsScoreCell);
       }
     }
@@ -193,6 +296,9 @@
     if (dateStartFilter) dateStartFilter.value = '';
     if (dateEndFilter) dateEndFilter.value = '';
     if (searchFilter) searchFilter.value = '';
+
+    // Clear URL parameters
+    saveFiltersToURL();
 
     // Show all rows
     applyFilters();
@@ -376,6 +482,7 @@
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(function () {
           state.filters.search = searchInput.value.toLowerCase();
+          saveFiltersToURL();
           applyFilters();
         }, 300);
       });
@@ -396,6 +503,7 @@
           if (modelFilter) {
             modelFilter.value = fullModel;
             state.filters.model = fullModel.toLowerCase();
+            saveFiltersToURL();
             applyFilters();
 
             // Scroll to top to see the filter

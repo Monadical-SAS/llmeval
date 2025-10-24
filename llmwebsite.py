@@ -237,6 +237,8 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
     """
     Generate the task detail page (test-level view) for a specific task.
 
+    Note: Links will preserve URL filter parameters via JavaScript on click.
+
     Args:
         run_dir: Path to run directory
         task_name: Name of the task
@@ -321,6 +323,16 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
 
     <main>
         <div class="container">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-model">Model</label>
+                    <input type="text" id="filter-model" placeholder="Filter by model...">
+                </div>
+                <div class="filter-actions">
+                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value">{total_models}</div>
@@ -403,7 +415,7 @@ def generate_task_detail_page(run_dir, task_name, task_data, static_source, run_
         else:
             model_session_link = f'{model["model_dir"]}/session.txt'  # Fallback to session.txt
 
-        html += f"""                            <tr>
+        html += f"""                            <tr data-model-full="{escape_html(full_name)}">
                                 <td data-sort="{model['global_score']}">{model['global_score']:.1f}%</td>
                                 <td><a href="{model_session_link}" title="{escape_html(full_name)}">{escape_html(display_name)}</a></td>
                                 <td>{duration_str}</td>
@@ -550,6 +562,16 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
 
     <main>
         <div class="container">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-model">Model</label>
+                    <input type="text" id="filter-model" placeholder="Filter by model...">
+                </div>
+                <div class="filter-actions">
+                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
+                </div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value">{total_models}</div>
@@ -592,7 +614,7 @@ def generate_run_overview_page(run_dir, run_data, static_source, force=False):
         display_name, full_name = strip_model_prefix(model_name)
         overall_score = calc_model_score(model_name)
 
-        html += f"""                            <tr>
+        html += f"""                            <tr data-model-full="{escape_html(full_name)}">
                                 <td data-sort="{overall_score}">{overall_score:.1f}%</td>
                                 <td title="{escape_html(full_name)}">{escape_html(display_name)}</td>
 """
