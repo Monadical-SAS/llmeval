@@ -105,13 +105,15 @@ log "Models: ${MODEL_LIST}"
 # Step 3.5: Read concurrency setting from environment variable (default: 4)
 CONCURRENT="${CONCURRENT:-4}"
 log "Concurrency: ${CONCURRENT}"
+TIMEOUT="${TIMEOUT:-600}"
+log "Timeout (seconds): ${TIMEOUT}"
 
 # Step 4: Read tasks from environment variable (optional - auto-discovers if not set)
 if [[ -z "${EVAL_TASKS:-}" ]]; then
     log "EVAL_TASKS not set - using auto-discovery (all tasks in tasks/ directory)"
     # Run llmeval.py once with auto-discovery (no --task argument)
     log "Running evaluation for all tasks with auto-discovery..."
-    if uv run python llmeval.py --model "${MODEL_LIST}" --concurrent "${CONCURRENT}" >> "${LOG_FILE}" 2>&1; then
+    if uv run python llmeval.py --model "${MODEL_LIST}" --concurrent "${CONCURRENT}" --timeout "${TIMEOUT}" >> "${LOG_FILE}" 2>&1; then
         log "✓ Successfully completed evaluation for all tasks"
         FAILED_TASKS=0
         TOTAL_TASKS=1
@@ -142,7 +144,7 @@ else
 
         # Run llmeval.py for this task with all configured models
         log "Running evaluation for task: ${TASK}"
-        if uv run python llmeval.py --model "${MODEL_LIST}" --task "${TASK}" --concurrent "${CONCURRENT}" >> "${LOG_FILE}" 2>&1; then
+        if uv run python llmeval.py --model "${MODEL_LIST}" --task "${TASK}" --concurrent "${CONCURRENT}" --timeout "${TIMEOUT}">> "${LOG_FILE}" 2>&1; then
             log "✓ Successfully completed evaluation for ${TASK}"
         else
             log "ERROR: Evaluation failed for task: ${TASK}"
