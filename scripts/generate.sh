@@ -108,6 +108,9 @@ log "Concurrency: ${CONCURRENT}"
 TIMEOUT="${TIMEOUT:-600}"
 log "Timeout (seconds): ${TIMEOUT}"
 
+# Close any previous cubbi
+cubbi session close --all --kill
+
 # Step 4: Read tasks from environment variable (optional - auto-discovers if not set)
 if [[ -z "${EVAL_TASKS:-}" ]]; then
     log "EVAL_TASKS not set - using auto-discovery (all tasks in tasks/ directory)"
