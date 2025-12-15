@@ -1,4 +1,4 @@
-You'll find a log file called `application.log` in the `./input` directory. Parse this log file and extract the following information:
+You'll find a log file called `application.log` in the current directory. Parse this log file and extract the following information:
 
 1. Count the total number of ERROR and WARNING level messages
 2. Extract all unique IP addresses that appear in the logs

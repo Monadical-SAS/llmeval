@@ -1,6 +1,6 @@
 # Contact List Deduplicator
 
-You have a CSV file `input/contacts.csv` containing contact information with potential duplicates.
+You have a CSV file `contacts.csv` containing contact information with potential duplicates.
 
 Your task is to identify and merge duplicate contacts based on matching criteria, then generate a JSON report.
 
@@ -13,9 +13,9 @@ Two contacts are duplicates if ANY of the following match:
 
 ## Requirements
 
-1. Read `input/contacts.csv`
+1. Read `contacts.csv`
 2. Identify all duplicate contacts
-3. Generate `input/deduped.json` with this exact structure:
+3. Generate `deduped.json` with this exact structure:
 
 ```json
 {

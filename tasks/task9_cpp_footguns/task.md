@@ -1,6 +1,6 @@
 # C++ Bug Hunt: Fix Subtle Errors
 
-You'll find several C++ files in the `input/` directory. Each file contains realistic code that does something useful, but has ONE subtle bug.
+You'll find several C++ files in the current directory. Each file contains realistic code that does something useful, but has ONE subtle bug.
 
 ## Your Task
 
@@ -20,7 +20,7 @@ Fix the bug in each file so that:
 - `off_by_one.cpp` - Matrix border detection
 - `int_overflow.cpp` - Bulk price calculator
 
-Each file is independent. Fix bugs **IN PLACE** (modify the files in `input/`).
+Each file is independent. Fix bugs **IN PLACE** (modify the files in the same directory).
 
 
 PS: You are currently working in an automated system and cannot ask any question or have back and forth with an user.

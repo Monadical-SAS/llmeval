@@ -1,5 +1,4 @@
-You'll find a text file called `mixed_content.txt` in the `./input` directory containing various types of data mixed
-together.
+You'll find a text file called `mixed_content.txt` in current directory containing various types of data mixed together.
 
 Extract ALL instances of the following patterns using regular expressions:
 
