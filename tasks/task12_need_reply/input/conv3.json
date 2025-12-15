@@ -1,0 +1,215 @@
+{
+  "id": "zulip:stream:193:pr",
+  "timestamp": "2025-12-15T18:42:33Z",
+  "contact_ids": ["15", "4", "70", "14", "27"],
+  "connector_id": "zulip",
+  "title": "InternalAI - PR",
+  "connector_metadata": {},
+  "parent_id": null,
+  "entity_type": "threaded_conversation",
+  "recent_messages": [
+    {
+      "id": 1649755,
+      "content": "Or can I only do that locally?",
+      "timestamp": 1765823884,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649754,
+      "content": "How can I do that?",
+      "timestamp": 1765823862,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649753,
+      "content": "I'd like to see how each model does on my task.",
+      "timestamp": 1765823856,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649751,
+      "content": "@**Nik** https://eval.monadical.io/",
+      "timestamp": 1765823827,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1649750,
+      "content": "What's the website where we can check all the evals? @**Mathieu**",
+      "timestamp": 1765823747,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649745,
+      "content": "@**Nik** approved, ~~merge it, i was going to start a run of eval to test the new models~~ i just merged it",
+      "timestamp": 1765823363,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1649744,
+      "content": "@**Mathieu** https://github.com/Monadical-SAS/llmeval/pull/5 This is a task to classify linkedin relationships between people in a social-graph-like fashion.",
+      "timestamp": 1765822948,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649731,
+      "content": "@**Nik** tags PR reworked and merged",
+      "timestamp": 1765821927,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1649573,
+      "content": "I am on hit at the moment, just merged main and testing",
+      "timestamp": 1765810902,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1649570,
+      "content": "@_**Nik|420** [said](https://zulip.monadical.com/#narrow/stream/193-InternalAI/topic/PR/near/1649276):\n```quote\nAdd Tags Feature to ContactDB @**Mathieu** \nhttps://gitea.app.monadical.io/monadical/internalai/pulls/35\n```\n\n@**Mathieu** just a friendly reminder to review this PR when you're free :)",
+      "timestamp": 1765810870,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649480,
+      "content": "feat: Dataindex: Ingest contacts from ContactDB\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/62",
+      "timestamp": 1765598733,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1649276,
+      "content": "Add Tags Feature to ContactDB @**Mathieu** \nhttps://gitea.app.monadical.io/monadical/internalai/pulls/35",
+      "timestamp": 1765564067,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1649082,
+      "content": "feat(dataindex): add database indexes for thread_id and room_name queries\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/66",
+      "timestamp": 1765553794,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1649080,
+      "content": "feat(dataindex): Allow null max_content_length to disable truncation in MCP\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/65",
+      "timestamp": 1765553765,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1648932,
+      "content": "(guys, please react here when you validate the PR, to prevent others to just to and \"oh it's already done\")",
+      "timestamp": 1765498805,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1648930,
+      "content": "Link reflector participants to contactdb contact, and display meeting in contactdb user display\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/61",
+      "timestamp": 1765498764,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1648818,
+      "content": "Add room name display and filter, now that reflector have it:\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/59",
+      "timestamp": 1765493501,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1648238,
+      "content": "@**Angel** FYI cache is working. https://gitea.app.monadical.io/monadical/internalai/pulls/56",
+      "timestamp": 1765418025,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1648012,
+      "content": "@**Jose 💻** i'm going to merge the https location redirection, need it to have the platform working for recording a demo",
+      "timestamp": 1765383547,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1647871,
+      "content": "Prevent HTTPS localhost redirection\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/53",
+      "timestamp": 1765339677,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "27"
+    },
+    {
+      "id": 1647870,
+      "content": "separate E2E testing container\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/49",
+      "timestamp": 1765339674,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "27"
+    },
+    {
+      "id": 1647822,
+      "content": "Ingest DMs in Zulip\nhttps://gitea.app.monadical.io/monadical/internalai/pulls/52",
+      "timestamp": 1765328661,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1647820,
+      "content": "Discover new streams on periodic sync in Zulip ingester: https://gitea.app.monadical.io/monadical/internalai/pulls/51",
+      "timestamp": 1765328583,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1647287,
+      "content": "@**Juan** done",
+      "timestamp": 1765296131,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1647283,
+      "content": "try now",
+      "timestamp": 1765295736,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1647280,
+      "content": "I don't see you, you need to create an account first ?",
+      "timestamp": 1765295673,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1647278,
+      "content": "@**Mathieu** can you invite me to gittea",
+      "timestamp": 1765295588,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1647057,
+      "content": "@*internal-ai-devs* adding fernet encryption to password in database + migrate mbsync to not include password in configuration and rather use internal command https://gitea.app.monadical.io/monadical/internalai/pulls/48",
+      "timestamp": 1765242704,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1646752,
+      "content": "@*internal-ai-devs* let's use this channel for asking PR review, and always tag the person of interest to make sure a review does not stay unreviewed",
+      "timestamp": 1765212800,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    }
+  ]
+}

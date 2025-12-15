@@ -1,0 +1,19 @@
+{
+  "id": "monadical:message:CAC7wWgYuFdCV_NSFC8UnTJa1rt7Sy=fJhFbWN5N_HpOSqh7rng@mail.gmail.com",
+  "timestamp": "2025-12-03T14:47:29Z",
+  "contact_ids": ["4", "363"],
+  "connector_id": "monadical",
+  "title": "Hey !",
+  "connector_metadata": {},
+  "parent_id": null,
+  "entity_type": "email",
+  "thread_id": "0000000000000780",
+  "text_content": "Hey Mathieu\n\nI have a business opportunities that we should absolutely talk about. Give\nme a call.\n",
+  "html_content": "<div dir=\"ltr\"><div>Hey Mathieu</div><div><br></div><div>I have a business opportunities that we should absolutely talk about. Give me a call.</div></div>\n",
+  "snippet": "Hey Mathieu I have a business opportunities that we should absolutely talk about. Give me a call.",
+  "from_contact_id": "363",
+  "to_contact_ids": ["4"],
+  "cc_contact_ids": [],
+  "has_attachments": false,
+  "attachments": []
+}

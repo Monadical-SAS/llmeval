@@ -1,0 +1,215 @@
+{
+  "id": "zulip:stream:205:llm hosting economics",
+  "timestamp": "2025-12-10T18:54:44Z",
+  "contact_ids": ["16", "4", "116", "15"],
+  "connector_id": "zulip",
+  "title": "ExternalAI - LLM hosting economics",
+  "connector_metadata": {},
+  "parent_id": null,
+  "entity_type": "threaded_conversation",
+  "recent_messages": [
+    {
+      "id": 1648095,
+      "content": "@_**Mathieu|299** [said](https://zulip.monadical.com/#narrow/channel/205-ExternalAI/topic/LLM.20hosting.20economics/near/1640562):\n```quote\n@**Michał Flak** the solver could lovable app that you share to be able to play with like with the usage on average :D\n```\n\nTried this, lovable couldn't do it",
+      "timestamp": 1765392884,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1643144,
+      "content": "I replied @**Mathieu**",
+      "timestamp": 1764699211,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1643055,
+      "content": "https://www.reddit.com/r/LocalLLaMA/s/fDamPcAonp - could we be interested? If price can be negotiated?",
+      "timestamp": 1764695788,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1642669,
+      "content": "@_**Max|67** [said](https://zulip.monadical.com/#narrow/channel/205-ExternalAI/topic/LLM.20hosting.20economics/near/1642214):\n```quote\nwhelp, it looks like [deepseek is likely the new king](https://api-docs.deepseek.com/news/news251201) @**Daniil Kulko**\n```\n\nYeah, new top model in the city, it's available on TensorRT-LLM already, thanks god :laughing:\nI will ask Nikita if he thinks it makes sense right now a return back to you.",
+      "timestamp": 1764645438,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1642216,
+      "content": "also, do you want me to invite your co-founder in here?",
+      "timestamp": 1764616076,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1642214,
+      "content": "whelp, it looks like [deepseek is likely the new king](https://api-docs.deepseek.com/news/news251201) @**Daniil Kulko**",
+      "timestamp": 1764616027,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1641966,
+      "content": "sounds great @**Daniil Kulko**",
+      "timestamp": 1764606208,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1641938,
+      "content": "All the autoscalers and load-balancers are already implemented.",
+      "timestamp": 1764604950,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1641937,
+      "content": "Hey guys, I have a proposal for you. My co-founder Nikita is actually an infra pro, and he has already built everything needed over the last few days, so we have everything ready on our end to deploy and I wanted to ask what you think if we do deployment ourselves? We can finalize the provider registration form today and submit it. We implemented all the necessary telemetry metrics, so we can get all the OpenRouter traffic stats easily. LMK what you think, it's just to collect the information sooner.",
+      "timestamp": 1764604896,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1641889,
+      "content": "Autoscale and load balance - not sure, I would imagine some providers would have just a piece of hardware that they expose? I'll read on how to be an openrouter provider generally",
+      "timestamp": 1764600985,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1641887,
+      "content": "just lmk what the minimum we can do to validate whether this has the potential to be profitable",
+      "timestamp": 1764600934,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1641879,
+      "content": "I'm imagining we'll need to have something in place to autoscale & load balance?",
+      "timestamp": 1764600804,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1641876,
+      "content": "@**Michał Flak** can you put together a quick proposal on this?",
+      "timestamp": 1764600751,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1641653,
+      "content": "@**Max** Intuitively yes, especially that we have a competitive advantage thanks to @**Daniil Kulko** ! Even to see what is the utilization in practice. \nWe'd have to check what requirements do they have for providers.",
+      "timestamp": 1764368209,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1641637,
+      "content": "@**Michał Flak** @**Daniil Kulko** @**Mathieu** what do you guys think? Is it worth taking a shot at hosting this on openrouter and seeing what happens?",
+      "timestamp": 1764365806,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1641059,
+      "content": "interesting. I would be shocked if 70% utilization is achievable though",
+      "timestamp": 1764268688,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "16"
+    },
+    {
+      "id": 1640581,
+      "content": "Aside, if it don't take more than 1h yes. I feel with your code, pasted on lovable with few instruction it should be possible. Something that look like the vram calculator :)",
+      "timestamp": 1764196485,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1640568,
+      "content": "@**Mathieu** Yeah I thought about it - this could be useful to people, should we make a webapp out of it? Could run fully client side",
+      "timestamp": 1764195508,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1640562,
+      "content": "@**Michał Flak** the solver could lovable app that you share to be able to play with like with the usage on average :D",
+      "timestamp": 1764195352,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "4"
+    },
+    {
+      "id": 1640280,
+      "content": "true :D\nI would guess someone somewhere would have shared this number from experience, but I haven't looked",
+      "timestamp": 1764181570,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1640279,
+      "content": "Yeah that's the key point here, we don't know if it's gonna be 70% or 10% on average :laughing:",
+      "timestamp": 1764181538,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1640278,
+      "content": "In the last column you can see utilization % required to break even",
+      "timestamp": 1764181502,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1640277,
+      "content": "got it",
+      "timestamp": 1764181491,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1640276,
+      "content": "70%, tbh I have no idea what that looks like in practice :sweat_smile: \nYeah, max tps * utilization = average tps",
+      "timestamp": 1764181479,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1640274,
+      "content": "I see, and what is the average utilization assumed?",
+      "timestamp": 1764181432,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1640273,
+      "content": "@**Daniil Kulko** I haven't estimated the daily number of tokens - just the ratio between input/output tokens from this OpenRouter graph. The usage values come from max tps and assumed average utilization.",
+      "timestamp": 1764181385,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1640272,
+      "content": "I'm curious how did you estimate the daily number of tokens? Am I right that with https://openrouter.ai/z-ai/glm-4.6:exacto/activity whis is the total activity that is shared across providers somehow?",
+      "timestamp": 1764181272,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "116"
+    },
+    {
+      "id": 1639999,
+      "content": "cc @**Mathieu** @**Angel** if you're curious",
+      "timestamp": 1764128127,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1639998,
+      "content": "@**Max** , I created a solver for LLM hosting economics:\nhttps://github.com/Monadical-SAS/llm-hosting-economics\n\nHere are the calculations for the models we measured today:\n\n[image.png](/user_uploads/4/d7/kUYkgLhqAC-QY-lRdIAw8E1_/image.png)\n\nInputs / assumptions:\n- 70% average utilization (on the optimistic side)\n- Cost: Datacrunch spot instance with B200\n- Input, Output prices taken from bf16 on Openrouter\n- 0% Openrouter cut (from what I read, they charge 5% on deposits and that's it)\n- Average input to output token ratio taken from a typical day stats on Openrouter for GLM 4.6 (see https://openrouter.ai/z-ai/glm-4.6:exacto/activity)\n\nPersonally I'm surprised how high the revenue numbers are, perhaps the practical utilization that providers see is low - I thought this would be a super competitive space. Or maybe the typical usage is at much higher input lenghts than tested, we could find some stats on that and benchmark accordingly.\n\nFeel free to play around with the numbers in Marimo - it solves a system of constraints, so it can calculate all the missing ones from others, of course if solvable.\n\ncc @**Daniil Kulko**",
+      "timestamp": 1764128058,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    }
+  ]
+}

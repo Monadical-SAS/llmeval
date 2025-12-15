@@ -1,0 +1,19 @@
+{
+  "id": "zulip:stream:155:durable workflow",
+  "timestamp": "2025-12-15T22:21:23Z",
+  "contact_ids": ["17", "4"],
+  "connector_id": "zulip",
+  "title": "reflector - durable workflow",
+  "connector_metadata": {},
+  "parent_id": null,
+  "entity_type": "threaded_conversation",
+  "recent_messages": [
+    {
+      "id": 1649633,
+      "content": "hey @*reflectors* , during working with reflector I had a bunch of frustrations about observability and retryability/performance of the pipelines so went forward with researching existing solutions in industry\n\nthe most well known being durable workflow [pattern?] that most of you may already know from Temporal io implementation\n\nmain problems were: \n\n- retries go forever (20min for an integration testing loop easily) - impacts both users (they wait for reprocessing forever) and devs (have to isolate code in order to test, and even isolated, integration test has to be done anyways)\n- it's difficult to see which step the process on, what are the steps, how many steps left, how long left, which step has an error and what error - again, impact both users and devex, but ALSO impacts \"power users\" - the devops/developers who will be installing reflector on their premises, AND also impacts potential contributors\n- it's unclear, without good Reflector knowledge and without analyzing the code, what steps are performed at all - fixed partially with docs but docs is not the format that is easily maintainable :smile: and will fall behind\n\ndurable workflow is a potential solution (and I believe that the easiest/most well-established in industry) to the problems above \n\nI no-mistaked a flow in one of durable workflow self-hosted solutions (postgres based) to demo the approach and it already runs daily co diarizations for me\n\n[Screenshot 2025-12-15 at 11.33.39 AM.png](/user_uploads/4/fb/Z-cFIRtMV_VivACB4yIeKNhs/Screenshot-2025-12-15-at-11.33.39AM.png)\n\nproblem statement https://www.loom.com/share/dafb59848df54fa98f5d2a507c556315\npotential solution https://www.loom.com/share/d0a2c82311c24b80b691d1a5b619bb39\n\nWhat do you think? Probably we can have a separate call to speak about it - consider the videos above a prep then (5min + 5min)",
+      "timestamp": 1765816524,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "17"
+    }
+  ]
+}

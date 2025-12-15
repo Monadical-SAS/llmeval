@@ -1,0 +1,374 @@
+{
+  "id": "zulip:stream:23:day off",
+  "timestamp": "2025-12-15T14:59:23Z",
+  "contact_ids": [
+    "19",
+    "11",
+    "8",
+    "18",
+    "22",
+    "2",
+    "20",
+    "360",
+    "7",
+    "27",
+    "14"
+  ],
+  "connector_id": "zulip",
+  "title": "social - day off",
+  "connector_metadata": {},
+  "parent_id": null,
+  "entity_type": "threaded_conversation",
+  "recent_messages": [
+    {
+      "id": 1649564,
+      "content": "I'll be taking December 25,26 and 31, also January 1 and 2 off",
+      "timestamp": 1765810763,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "22"
+    },
+    {
+      "id": 1649495,
+      "content": "I will be off 23 Dec–4 Jan",
+      "timestamp": 1765713114,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "2"
+    },
+    {
+      "id": 1649485,
+      "content": "Will be off Dec 22-Jan2",
+      "timestamp": 1765642623,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "20"
+    },
+    {
+      "id": 1649394,
+      "content": "@_**Angel|159** [said](https://zulip.monadical.com/#narrow/channel/23-social/topic/day.20off/near/1643668):\n```quote\nI’ll be off for the end-of-year holidays \n* Next monday Dec 8 (holiday in :flag_colombia:)\n* From December 24th (wednesday) to January 5th (monday)\n```\n\nFriendly, reminder of this :smile: \nI'll be off from Dec 24 to Jan 5 (I'll be back Jan 5). Later some days in Jan but I'll update before of them.",
+      "timestamp": 1765575522,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1649378,
+      "content": "Thank you to people who have already shared that info :star_struck:.",
+      "timestamp": 1765574534,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1649377,
+      "content": "@**all** a friendly reminder to share here and accept Zippy's suggestion to record the info in your vacation stream if you're taking some time off at the end of the year, so other people are aware (please coordinate with your team).  You could also report directly in your vacation stream or use the UI (thanks to Joyce for having these options :octopus: )",
+      "timestamp": 1765574525,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1648182,
+      "content": "I'll be off from Dec 24 to Jan 5 (both inclusive)",
+      "timestamp": 1765403492,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1646506,
+      "content": "Hey forget to post here but I’ll be off today because holiday",
+      "timestamp": 1765195660,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "19"
+    },
+    {
+      "id": 1645783,
+      "content": "@**Joyce Obi** ^",
+      "timestamp": 1764954337,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1645782,
+      "content": "same for you!",
+      "timestamp": 1764954318,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1645779,
+      "content": "[image.png](/user_uploads/4/19/SISwumpV__Bm8TsqbN0iNe4z/image.png)\nhaha",
+      "timestamp": 1764954290,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1645774,
+      "content": "@_**Ana|66** [said](https://zulip.monadical.com/#narrow/channel/23-social/topic/day.20off/near/1645768):\n```quote\nI'm sick and will be off today (test)\n```\n\nhope you get better (test)",
+      "timestamp": 1764954264,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1645771,
+      "content": "I'll be off next Wednesday (test)",
+      "timestamp": 1764954235,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1645768,
+      "content": "I'm sick and will be off today (test)",
+      "timestamp": 1764954085,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1645659,
+      "content": "Same here :) (off Dec 8 holiday)",
+      "timestamp": 1764949388,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1645556,
+      "content": "Me too",
+      "timestamp": 1764944377,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "7"
+    },
+    {
+      "id": 1645548,
+      "content": "hey I'll be off next Monday (holiday)",
+      "timestamp": 1764943934,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "22"
+    },
+    {
+      "id": 1644751,
+      "content": "Sorry for the late notice, but I need today off. Preparing docs for permanent residence is taking longer than expected",
+      "timestamp": 1764842493,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "11"
+    },
+    {
+      "id": 1643797,
+      "content": "I'll be off from dec 25th to jan 5th",
+      "timestamp": 1764775949,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1643793,
+      "content": "I'll be off dec 8 (birthday + holiday)",
+      "timestamp": 1764775895,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1643668,
+      "content": "I’ll be off for the end-of-year holidays \n* Next monday Dec 8 (holiday in :flag_colombia:)\n* From December 24th (wednesday) to January 5th (monday)",
+      "timestamp": 1764765353,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1642178,
+      "content": "Christmas and New Year vacation summary:\n- Half off Friday Dec 5\n- Off Dec 8, Holiday\n- Off from Dec 22 til Jan 5, vacation\n- Off Jan 12, Holiday\n- Off Jan 22 and 23, vacation",
+      "timestamp": 1764613127,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "27"
+    },
+    {
+      "id": 1641610,
+      "content": "I'll be off on Monday (test)",
+      "timestamp": 1764363710,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1640306,
+      "content": "i'll be off on friday, i'll be doing some tourism in santiago",
+      "timestamp": 1764183326,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "19"
+    },
+    {
+      "id": 1639972,
+      "content": "Early heads-up. I’ll be away from Thursday, January 15th to Monday, January 19th next year (2026). It’s a short trip to celebrate my mother’s birthday.",
+      "timestamp": 1764119160,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1638751,
+      "content": "I have physiotherapy this morning plus medical appointment",
+      "timestamp": 1763994738,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1636428,
+      "content": "I will be off for the rest of the day, fix is taking longer than expected",
+      "timestamp": 1763486953,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "23"
+    },
+    {
+      "id": 1635993,
+      "content": "Have an issue with my car today I will take half day off tomorrow to get it fixed",
+      "timestamp": 1763398381,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "23"
+    },
+    {
+      "id": 1635969,
+      "content": "@**Jordan Wimmer** @**David Cavey**",
+      "timestamp": 1763394923,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    },
+    {
+      "id": 1635770,
+      "content": "I'll be off next friday - attending https://main.dssconf.pl/",
+      "timestamp": 1763243311,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1634937,
+      "content": "joining the holiday army too (off Nov 17th)",
+      "timestamp": 1763083246,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "27"
+    },
+    {
+      "id": 1634704,
+      "content": "i'll be off next monday, Holiday",
+      "timestamp": 1763062425,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "19"
+    },
+    {
+      "id": 1634469,
+      "content": "I will be off next monday too",
+      "timestamp": 1763051024,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "23"
+    },
+    {
+      "id": 1634421,
+      "content": "I mean next Monday off (zippy)",
+      "timestamp": 1763049803,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "22"
+    },
+    {
+      "id": 1634414,
+      "content": "off this Monday as well",
+      "timestamp": 1763049744,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "22"
+    },
+    {
+      "id": 1634400,
+      "content": "I'll be off next monday, Holiday",
+      "timestamp": 1763049530,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "7"
+    },
+    {
+      "id": 1634397,
+      "content": "Ill be off tomorrow and monday 17th holiday",
+      "timestamp": 1763049511,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1633685,
+      "content": "Ill be off in the morning tomorrow",
+      "timestamp": 1762909030,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1633269,
+      "content": "hello, tomorrow I'll be off in the afternoon 1-2 hours. I have a medical appointment.",
+      "timestamp": 1762815900,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1633006,
+      "content": "I'll be off next monday nov 17 (holiday in :colombia: )",
+      "timestamp": 1762790495,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1632870,
+      "content": "I'll be off tomorrow, national holiday.\nAlso haven't had the best sleep today, brain not braining very well. I'll take it easy for now and update calendar at eod.",
+      "timestamp": 1762780969,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "15"
+    },
+    {
+      "id": 1631087,
+      "content": "I'll be off on Friday",
+      "timestamp": 1762178218,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "70"
+    },
+    {
+      "id": 1630797,
+      "content": "I will be off on Monday",
+      "timestamp": 1761929770,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "23"
+    },
+    {
+      "id": 1630786,
+      "content": "I'll be off next friday to go to MozFest",
+      "timestamp": 1761929270,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "26"
+    },
+    {
+      "id": 1630697,
+      "content": "I’ll be off today",
+      "timestamp": 1761921718,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1628798,
+      "content": "I'll be off next monday 3rd holiday",
+      "timestamp": 1761594243,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "14"
+    },
+    {
+      "id": 1628697,
+      "content": "I'll be off next monday nov 3 as well (holiday)",
+      "timestamp": 1761582862,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "8"
+    },
+    {
+      "id": 1628666,
+      "content": "Taking next monday off because of a holiday",
+      "timestamp": 1761580188,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "7"
+    },
+    {
+      "id": 1628572,
+      "content": "I need to do some urgent admin things, I'll take half a day today (only joining for calls and communication)... Sorry for the late heads up, thought I could handle it all over the week-end",
+      "timestamp": 1761561492,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "26"
+    },
+    {
+      "id": 1628199,
+      "content": "I'm taking Monday off",
+      "timestamp": 1761318444,
+      "content_type": "text/x-markdown",
+      "sender_contact_id": "18"
+    }
+  ]
+}
