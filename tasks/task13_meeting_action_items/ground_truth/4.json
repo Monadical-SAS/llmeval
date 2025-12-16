@@ -1,0 +1,8 @@
+{
+  "action_items": [
+    {
+      "action_item": "Add contacts to ContactDB and ensure they can be ingested into the data index (search index)",
+      "deadline": null
+    }
+  ]
+}
