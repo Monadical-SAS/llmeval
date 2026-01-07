@@ -13,6 +13,7 @@ from pathlib import Path
 
 import re
 import structlog
+import httpx
 from rich.live import Live
 from rich.table import Table
 
@@ -27,6 +28,128 @@ def escape_markdown_code_blocks(text):
     """Escape triple backticks in text to prevent breaking markdown code blocks."""
     # Replace ``` with escaped version to prevent breaking markdown formatting
     return text.replace("```", "\\`\\`\\`")
+
+
+async def validate_model(
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout: float = 30.0,
+    logger=None,
+) -> tuple[str, bool, str]:
+    """
+    Validate a single model by making a simple chat completion request.
+
+    Args:
+        model: The model name (e.g., 'litellm/openrouter/anthropic/claude-sonnet-4')
+        base_url: The LiteLLM base URL
+        api_key: The LiteLLM API key
+        timeout: Request timeout in seconds
+        logger: Optional logger instance
+
+    Returns:
+        Tuple of (model_name, is_valid, error_message)
+    """
+    # Strip 'litellm/' prefix for the API call since LiteLLM expects the model name without it
+    api_model = model[len("litellm/") :] if model.startswith("litellm/") else model
+
+    url = f"{base_url.rstrip('/')}/v1/chat/completions"
+
+    payload = {
+        "model": api_model,
+        "messages": [{"role": "user", "content": "Hi"}],
+        "max_tokens": 5,
+    }
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(url, json=payload, headers=headers)
+
+            if response.status_code == 200:
+                if logger:
+                    logger.info(f"Model validation passed", model=model)
+                return (model, True, "")
+            else:
+                error_msg = f"HTTP {response.status_code}: {response.text[:200]}"
+                if logger:
+                    logger.warning(
+                        f"Model validation failed", model=model, error=error_msg
+                    )
+                return (model, False, error_msg)
+
+    except httpx.TimeoutException:
+        error_msg = f"Request timed out after {timeout}s"
+        if logger:
+            logger.warning(f"Model validation timeout", model=model, timeout=timeout)
+        return (model, False, error_msg)
+
+    except httpx.ConnectError as e:
+        error_msg = f"Connection error: {str(e)}"
+        if logger:
+            logger.warning(f"Model validation connection error", model=model, error=str(e))
+        return (model, False, error_msg)
+
+    except Exception as e:
+        error_msg = f"Unexpected error: {str(e)}"
+        if logger:
+            logger.warning(
+                f"Model validation unexpected error", model=model, error=str(e)
+            )
+        return (model, False, error_msg)
+
+
+async def validate_models(
+    models: list[str],
+    base_url: str,
+    api_key: str,
+    timeout: float = 30.0,
+    logger=None,
+) -> tuple[list[str], list[tuple[str, str]]]:
+    """
+    Validate all models concurrently and return valid models.
+
+    Args:
+        models: List of model names to validate
+        base_url: The LiteLLM base URL
+        api_key: The LiteLLM API key
+        timeout: Request timeout in seconds per model
+        logger: Optional logger instance
+
+    Returns:
+        Tuple of (valid_models, failed_models_with_errors)
+        where failed_models_with_errors is a list of (model, error_message) tuples
+    """
+    if logger:
+        logger.info(f"Validating {len(models)} model(s)...", models=models)
+
+    # Run all validations concurrently
+    tasks = [
+        validate_model(model, base_url, api_key, timeout, logger) for model in models
+    ]
+    results = await asyncio.gather(*tasks)
+
+    valid_models = []
+    failed_models = []
+
+    for model, is_valid, error_msg in results:
+        if is_valid:
+            valid_models.append(model)
+        else:
+            failed_models.append((model, error_msg))
+
+    if logger:
+        logger.info(
+            f"Model validation complete",
+            valid_count=len(valid_models),
+            failed_count=len(failed_models),
+        )
+
+    return valid_models, failed_models
 
 
 CUBBIX_COMMAND_TEMPLATE = [
@@ -772,6 +895,17 @@ async def main():
         default=10,
         help="Maximum number of concurrent model×task executions (default: 10)",
     )
+    parser.add_argument(
+        "--skip-validation",
+        action="store_true",
+        help="Skip model validation before running evaluations",
+    )
+    parser.add_argument(
+        "--validation-timeout",
+        type=float,
+        default=30.0,
+        help="Timeout in seconds for model validation requests (default: 30)",
+    )
 
     args = parser.parse_args()
 
@@ -813,6 +947,53 @@ async def main():
         if not (task_dir / "task.md").exists():
             logger.error("task.md not found in task directory", task_dir=str(task_dir))
             sys.exit(1)
+
+    # Validate models before running evaluations
+    if not args.skip_validation:
+        base_url = os.environ.get("LITELLM_BASE_URL")
+        api_key = os.environ.get("LITELLM_API_KEY")
+
+        if not base_url or not api_key:
+            logger.warning(
+                "LITELLM_BASE_URL or LITELLM_API_KEY not set, skipping model validation. "
+                "Set these environment variables or use --skip-validation to suppress this warning."
+            )
+        else:
+            logger.info(
+                "Pre-validating models before running evaluations...",
+                model_count=len(models),
+                validation_timeout=args.validation_timeout,
+            )
+
+            valid_models, failed_models = await validate_models(
+                models,
+                base_url,
+                api_key,
+                timeout=args.validation_timeout,
+                logger=logger,
+            )
+
+            if failed_models:
+                logger.warning(
+                    f"Removing {len(failed_models)} unavailable model(s) from evaluation:",
+                )
+                for model, error in failed_models:
+                    logger.warning(f"  - {model}: {error}")
+
+            if not valid_models:
+                logger.error(
+                    "No valid models available after validation. Exiting.",
+                    failed_models=[m for m, _ in failed_models],
+                )
+                sys.exit(1)
+
+            if len(valid_models) < len(models):
+                logger.info(
+                    f"Proceeding with {len(valid_models)} valid model(s)",
+                    valid_models=valid_models,
+                )
+
+            models = valid_models
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = Path(RUNS_DIR) / f"run_{timestamp}"
